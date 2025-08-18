@@ -1,85 +1,111 @@
-import Layout from '../components/Layout'
-import left from '../assets/imgs/left.png'
-import right from '../assets/imgs/right.png'
+import Layout from "../components/Layout"
 
-export default function ScamWarning() {
+export default function Electricity() {
   return (
-    <Layout className="min-h-screen pb-48 font-['Block-Blueprint'] text-black">
+    <Layout className="min-h-screen pb-20 font-['Block-Blueprint'] bg-[#fef6f0] text-black">
 
-      {/* Title */}
-      <div className="flex justify-center items-center gap-4 mt-6 select-none">
-        <span className="text-red-600 text-5xl md:text-6xl leading-none">✖</span>
-        <h1 className="text-2xl md:text-4xl font-extrabold tracking-widest uppercase">Beware of Scammers!</h1>
-        <span className="text-green-600 text-5xl md:text-6xl leading-none">✔</span>
-      </div>
+      {/* Page Title */}
+      <h1 className="text-center text-2xl font-bold mt-6 tracking-wide">
+        ELECTRICITY DEPARTMENT
+      </h1>
 
-      {/* Monitors */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mt-8 px-6 md:px-10">
-        <div className="flex flex-col items-center">
-          <img src={left} alt="scam example left" className="w-80 md:w-[340px] drop-shadow-[8px_8px_0_rgba(0,0,0,0.2)]" />
-        </div>
-        <div className="flex flex-col items-center">
-          <img src={right} alt="scam example right" className="w-80 md:w-[340px] drop-shadow-[8px_8px_0_rgba(0,0,0,0.2)]" />
-        </div>
-      </div>
+      <div className="flex flex-col md:flex-row gap-10 justify-center mt-10 px-6 md:px-20">
 
-      {/* Notepad-style Precautions window */}
-      <div className="relative mx-4 md:mx-12 mt-10">
-        {/* offset shadow */}
-        <div className="absolute inset-0 translate-x-3 translate-y-3 bg-[#d26a2f] rounded-md" aria-hidden="true" />
-        <div className="relative bg-white border-2 border-black rounded-md overflow-hidden">
-          {/* Blue title bar */}
-          <div className="flex items-center justify-between bg-[#0b5ed7] text-white px-3 py-1 border-b-2 border-black">
-            <span className="font-semibold text-sm">Untitled - Notepad</span>
-            <div className="flex items-center gap-1">
-              <span className="w-3 h-3 bg-white border border-black inline-block"></span>
-              <span className="w-3 h-3 bg-white border border-black inline-block"></span>
-              <span className="w-3 h-3 bg-white border border-black inline-block"></span>
-            </div>
-          </div>
-          {/* Menu bar */}
-          <div className="bg-white text-black px-3 py-1 border-b-2 border-black text-xs tracking-wide">
-            File &nbsp; Edit &nbsp; Search &nbsp; Help
+        {/* Notice Board */}
+        <div className="border-2 border-black shadow-[6px_6px_0px_black] bg-[#fff] w-full md:w-1/3 rounded-md overflow-hidden font-['Block-Blueprint']">
+          {/* Fake Browser Header */}
+          <div className="bg-[#d9722e] flex items-center justify-start px-3 py-1 border-b-2 border-black">
+            <div className="w-3 h-3 rounded-full bg-red-500 mr-1"></div>
+            <div className="w-3 h-3 rounded-full bg-yellow-400 mr-1"></div>
+            <div className="w-3 h-3 rounded-full bg-green-500"></div>
           </div>
 
-          {/* Body */}
-          <div className="p-4 md:p-6 text-sm leading-relaxed">
-            <h2 className="font-extrabold underline mb-2">PRECAUTIONS:</h2>
-            <p>
-              Don’t share confidential details like banking details, addresses, etc. with anybody.
-              Don’t give anybody you don’t know access to your dot-com profile. The Government of UPM does NOT ask
-              for any details except your name and telephone no., don’t share any other details. Keep strong passwords
-              that are difficult to guess, not things like your birthday or worse, your name.
+          {/* Notice Content */}
+          <div className="p-4 text-sm leading-relaxed">
+            <h2 className="font-bold text-lg flex items-center gap-2">
+              Notice Board
+            </h2>
+
+            <p className="mt-2">
+              Welcome to UPM Electric, the official power supplier of United
+              Pingdom of Minet. For details about your connection click here
+              To get a new connection click here To get a summary of your last
+              consumption click here To change details of your connection click here
             </p>
+            <button className="mt-3 bg-gradient-to-b from-[#4a5bd8] to-[#3a44b5] text-white px-3 py-1 rounded shadow">
+              Know more
+            </button>
+
+            {/* Divider */}
+            <div className="border-t border-dotted border-gray-500 my-4"></div>
+
+            <p>
+              A power outage will happen today during the night hours between
+              3AM and 4AM around the Board Game Industry due to maintenance work.
+              We apologise for the inconvenience.
+            </p>
+            <button className="mt-3 bg-gradient-to-b from-[#4a5bd8] to-[#3a44b5] text-white px-3 py-1 rounded shadow">
+              Know more
+            </button>
+          </div>
+        </div>
+
+        {/* User Details + Bills */}
+        <div className="border-2 border-black shadow-[6px_6px_0px_black] bg-white flex-1 rounded-md overflow-hidden">
+          {/* Header Bar */}
+          <div className="bg-[#d9722e] h-8 border-b-2 border-black"></div>
+
+          {/* Profile Info */}
+          <div className="flex items-center gap-4 p-6">
+            <img
+              src="https://placehold.co/120x120"
+              alt="avatar"
+              className="w-28 h-28 border-2 border-black shadow-md"
+            />
+            <div>
+              <h2 className="font-bold text-lg mb-1">About</h2>
+              <p>Full Name: atmkbfjg</p>
+              <p>Email: atmkbftjsg@gmail.com</p>
+              <p>Age: 69</p>
+              <p>Phone Number: XXXXXXXXXX</p>
+              <p>Address: Dihpur, UPM</p>
+            </div>
           </div>
 
-          {/* bottom resizer corner */}
-          <div className="flex justify-end pr-2 pb-2">
-            <div className="w-3 h-3 border-r-2 border-b-2 border-black rotate-45" aria-hidden="true" />
+          {/* Bills Section */}
+          <div className="px-6 pb-8">
+            <h2 className="font-bold text-lg mb-4">Bills Pending</h2>
+            <div className="flex flex-col md:flex-row gap-6">
+              {/* Bill 1 */}
+              <div className="bg-[#f8b259] border-2 border-black p-4 flex-1 rounded-md shadow-[4px_4px_0px_black]">
+                <h3 className="font-bold">BILL - MAY 2000</h3>
+                <p className="text-green-700">received</p>
+                <button className="mt-2 bg-gradient-to-b from-[#f59e0b] to-[#d97706] text-white px-3 py-1 rounded shadow">
+                  Download receipt
+                </button>
+              </div>
+
+              {/* Bill 2 */}
+              <div className="bg-[#f8b259] border-2 border-black p-4 flex-1 rounded-md shadow-[4px_4px_0px_black]">
+                <h3 className="font-bold">BILL - JUNE 2000</h3>
+                <p className="text-red-600">pending</p>
+                <button className="mt-2 bg-red-600 text-white px-3 py-1 rounded shadow">
+                  Pay Online!
+                </button>
+              </div>
+
+              {/* Bill 3 */}
+              <div className="bg-[#f8b259] border-2 border-black p-4 flex-1 rounded-md shadow-[4px_4px_0px_black]">
+                <h3 className="font-bold">BILL - JULY 2000</h3>
+                <p className="text-green-700">received</p>
+                <button className="mt-2 bg-gradient-to-b from-[#f59e0b] to-[#d97706] text-white px-3 py-1 rounded shadow">
+                  Download receipt
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-
-      {/* Bottom Section */}
-      <div className="text-center mt-12">
-        <h2 className="text-2xl font-extrabold tracking-wider">Check out more schemes!</h2>
-        <p className="text-sm text-gray-700">Get the perfect advice online now!</p>
-      </div>
-
-      {/* Schemes Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-6 px-6 md:px-16">
-        {[1, 2, 3].map((num) => (
-          <div key={num} className="relative">
-            {/* offset */}
-            <div className="absolute inset-0 translate-x-3 translate-y-3 bg-[#d26a2f] rounded-md" aria-hidden="true" />
-            <div className="relative bg-white border-2 border-black rounded-md p-5 text-left">
-              <h3 className="font-extrabold">Scheme</h3>
-              <p className="text-sm text-gray-600">Text</p>
-            </div>
-          </div>
-        ))}
-      </div>
-
     </Layout>
   )
 }

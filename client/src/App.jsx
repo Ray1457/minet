@@ -6,6 +6,7 @@ import Price from './pages/price'
 import Dashboard from './pages/Dashboard'
 import Contact from './pages/Contact'
 import Tutorials from './pages/tutorials'
+import Scammer from './pages/Scammer'
 import Healthcare from './pages/Healthcare'
 
 
@@ -27,6 +28,7 @@ export default function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/tutorials" element={<Tutorials />} />
+          <Route path="/scammer" element={<Scammer />} />
           <Route path="/healthcare" element={<Healthcare />} />
         </Routes>
       </BrowserRouter>
