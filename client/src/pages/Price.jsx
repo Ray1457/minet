@@ -7,14 +7,14 @@ export default function Price() {
   return (
     <Layout className="min-h-screen pb-48 font-['Block-Blueprint']">
       {/* Price Rates page-content */}
-      <div className="page-container flex flex-col items-center justify-center py-12 space-y-10">
+      <div className="page-container flex flex-col items-center justify-center py-12 ">
         {/* Title tab */}
-        <div className="inline-flex px-12 py-4 bg-[#D96F32] text-white border-2 border-black rounded-b-md font-blockblueprint font-bold tracking-wider shadow-[0_6px_0_0_#c55f26]">
+        <div className="inline-flex px-12 py-4 bg-[#D96F32] text-white border-2 border-black  font-blockblueprint font-bold text-2xl tracking-wider border-b-0 rounded-b-none rounded-md">
           PRICE RATES
         </div>
 
         {/* Chart Window with offset panel */}
-        <div className="relative w-full max-w-5xl">
+        <div className="relative w-full max-w-5xl mb-10">
           <div className="absolute inset-0 translate-x-3 translate-y-3 bg-[#D96F32] rounded-md" aria-hidden="true" />
           <div className="relative bg-white border-2 border-black rounded-md overflow-hidden">
             {/* Top Bar */}

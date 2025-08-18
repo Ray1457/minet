@@ -5,6 +5,7 @@ import Card3 from '../components/Card3'
 import { useAuth } from '../context/AuthContext'
 
 export default function Home() {
+    const DOC_LINK = 'https://drive.google.com/file/d/1lVhyGElPyZlDR9M_cR2yYX-T0_mfwrpJ/view?usp=sharing'
     const { user, isAuthenticated } = useAuth()
     const name = user?.name || '—'
     const email = user?.email || '—'
@@ -65,7 +66,7 @@ export default function Home() {
                                 <p className='text-sm text-gray-600 mb-2'>
                                     Issuing Authority: NBE
                                 </p>
-                                <button className='text-blue-600 text-sm font-semibold hover:underline'>download</button>
+                                <a href={DOC_LINK} target="_blank" rel="noopener noreferrer" className='text-blue-600 text-sm font-semibold hover:underline'>download</a>
                             </div>
                         </div>
 
@@ -81,7 +82,7 @@ export default function Home() {
                                 <p className='text-sm text-gray-600 mb-2'>
                                     Issuing Authority: AAOM
                                 </p>
-                                <button className='text-blue-600 text-sm font-semibold hover:underline'>download</button>
+                                <a href={DOC_LINK} target="_blank" rel="noopener noreferrer" className='text-blue-600 text-sm font-semibold hover:underline'>download</a>
                             </div>
                         </div>
 
@@ -97,7 +98,7 @@ export default function Home() {
                                 <p className='text-sm text-gray-600 mb-2'>
                                     Issuing Authority: IT Dept.
                                 </p>
-                                <button className='text-blue-600 text-sm font-semibold hover:underline'>download</button>
+                                <a href={DOC_LINK} target="_blank" rel="noopener noreferrer" className='text-blue-600 text-sm font-semibold hover:underline'>download</a>
                             </div>
                         </div>
 
@@ -113,7 +114,7 @@ export default function Home() {
                                 <p className='text-sm text-gray-600 mb-2'>
                                     Issuing Authority: EC
                                 </p>
-                                <button className='text-blue-600 text-sm font-semibold hover:underline'>download</button>
+                                <a href="https://drive.google.com/file/d/13sLJdPecIe5U4HqOsehNdHj1PxPlju5C/view?usp=sharing" target="_blank" rel="noopener noreferrer" className='text-blue-600 text-sm font-semibold hover:underline'>download</a>
                             </div>
                         </div>
                     </div>
@@ -175,7 +176,7 @@ export default function Home() {
                             </div>
                             <div className='flex-1'>
                                 <h3 className='text-lg font-bold text-gray-900 mb-2'>Police Verification Application</h3>
-                                <button className='text-blue-600 text-sm font-semibold hover:underline'>Download Now</button>
+                                <a href="https://drive.google.com/file/d/1y1dwgco5FGvdbL23jG0iZw7GrdQnzhj4/view?usp=sharing" target="_blank" rel="noopener noreferrer" className='text-blue-600 text-sm font-semibold hover:underline'>Download Now</a>
                             </div>
                         </div>
 
@@ -188,7 +189,7 @@ export default function Home() {
                             </div>
                             <div className='flex-1'>
                                 <h3 className='text-lg font-bold text-gray-900 mb-2'>Caste Certificate Application</h3>
-                                <button className='text-blue-600 text-sm font-semibold hover:underline'>Download Now</button>
+                                <a href={DOC_LINK} target="_blank" rel="noopener noreferrer" className='text-blue-600 text-sm font-semibold hover:underline'>Download Now</a>
                             </div>
                         </div>
 
@@ -201,7 +202,7 @@ export default function Home() {
                             </div>
                             <div className='flex-1'>
                                 <h3 className='text-lg font-bold text-gray-900 mb-2'>Asset Declaration Application for EWS</h3>
-                                <button className='text-blue-600 text-sm font-semibold hover:underline'>Download Now</button>
+                                <a href="https://drive.google.com/file/d/1M08kDdm1Z4L6Se9-lAI9QF3zKPqDKFsn/view?usp=sharing" target="_blank" rel="noopener noreferrer" className='text-blue-600 text-sm font-semibold hover:underline'>Download Now</a>
                             </div>
                         </div>
 
@@ -214,7 +215,7 @@ export default function Home() {
                             </div>
                             <div className='flex-1'>
                                 <h3 className='text-lg font-bold text-gray-900 mb-2'>Income Tax Certificate Application</h3>
-                                <button className='text-blue-600 text-sm font-semibold hover:underline'>Download Now</button>
+                                <a href={DOC_LINK} target="_blank" rel="noopener noreferrer" className='text-blue-600 text-sm font-semibold hover:underline'>Download Now</a>
                             </div>
                         </div>
 
@@ -227,7 +228,7 @@ export default function Home() {
                             </div>
                             <div className='flex-1'>
                                 <h3 className='text-lg font-bold text-gray-900 mb-2'>Application for Voter I-Cards</h3>
-                                <button className='text-blue-600 text-sm font-semibold hover:underline'>Download Now</button>
+                                <a href={DOC_LINK} target="_blank" rel="noopener noreferrer" className='text-blue-600 text-sm font-semibold hover:underline'>Download Now</a>
                             </div>
                         </div>
 

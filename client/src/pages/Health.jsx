@@ -13,7 +13,7 @@ export default function Home() {
             <img src={healthimg} alt="" className='absolute right-28 z-30 top-[-3rem] h-96' />
             <Card2 className='w-3/4 mx-auto mt-12 text-gray-900 font-blockblueprint' contentClassName='px-12 py-16'>
                 <p className='text-5xl font-bold '>
-                    NATIONAL HEALTCARE
+                    NATIONAL HEALTHCARE
                 </p>
 
                 <p className='text-gray-700 text-lg mt-1 max-w-prose'>

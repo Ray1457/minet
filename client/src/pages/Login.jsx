@@ -2,13 +2,14 @@ import React, { useState } from "react";
 import Card1 from "../components/Card1";
 import Layout from "../components/Layout";
 import { useAuth } from "../context/AuthContext";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 
 const Login = () => {
     const [form, setForm] = useState({ email: "", password: "" });
     const [error, setError] = useState("");
     const { login } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
 
     const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value });
@@ -19,7 +20,8 @@ const Login = () => {
         setError("");
         try {
             await login(form.email, form.password);
-            navigate("/");
+            const redirectTo = location.state?.from?.pathname || "/";
+            navigate(redirectTo, { replace: true });
         } catch (err) {
             setError(err.message || "Login failed");
         }

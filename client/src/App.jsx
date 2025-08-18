@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Link, Navigate, useLocation } from 'react-router-dom'
 import Home from './pages/Home'
 import Login from './pages/Login'
 import Register from './pages/Register'
@@ -27,13 +27,27 @@ export default function App() {
           <Route path="/login" element={<Login />} />   
           <Route path="/register" element={<Register />} /> 
           <Route path="/price" element={<Price />} />
-          <Route path="/dashboard" element={<Dashboard />} />
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
           <Route path="/contact" element={<Contact />} />
           <Route path="/tutorials" element={<Tutorials />} />
           <Route path="/scam-alert" element={<Scammer />} />
           <Route path="/healthcare" element={<Healthcare />} />
           <Route path="/map" element={<MapPage />} />
-          <Route path="/electricity" element={<Electricity />} />
+          <Route
+            path="/electricity"
+            element={
+              <ProtectedRoute>
+                <Electricity />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </BrowserRouter>
     </AuthProvider>
@@ -43,4 +57,13 @@ export default function App() {
 function AuthNavbarWrapper() {
   const { isAuthenticated, logout } = useAuth()
   return <Navbar isAuthenticated={isAuthenticated} onLogout={logout} />
+}
+
+function ProtectedRoute({ children }) {
+  const { isAuthenticated } = useAuth()
+  const location = useLocation()
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace state={{ from: location }} />
+  }
+  return children
 }

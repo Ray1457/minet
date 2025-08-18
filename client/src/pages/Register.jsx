@@ -99,9 +99,7 @@ const Register = () => {
                             <p className="text-red-600 text-xs mt-1">Passwords do not match.</p>
                         ) : null}
 
-                        {error ? (
-                            <p className="text-red-600 text-xs mt-2">{error}</p>
-                        ) : null}
+                    
 
                         <label htmlFor="age" className="block font-bold mb-2 text-[#222]">Age</label>
                         <input
@@ -150,6 +148,10 @@ const Register = () => {
                             onChange={handleChange}
                             autoComplete="off"
                         />
+
+                        {error ? (
+                            <p className="text-red-600 text-xs mt-2">{error}</p>
+                        ) : null}
 
                         <button
                             type="submit"
