@@ -8,8 +8,8 @@ export default function Home() {
   return (
     <Layout className="min-h-screen pb-48 font-['Block-Blueprint']">
       {/* Main Window */}
-      <Card4 title="Contact Forms">
-        <div className="space-y-6">
+      <Card4 title="Contact Forms" className='w-3/4 mx-auto'>
+        <div className="space-y-6 text-gray-900">
 
           {/* Agriculture Department */}
           <div className="flex items-center gap-4 bg-red-100 p-4 rounded-lg shadow-sm">
@@ -25,7 +25,7 @@ export default function Home() {
 
               {/* Button */}
               <Link
-                to="/appointment/agriculture"
+                to="/"
                 className="mt-2 bg-orange-100 text-blue-700 font-semibold px-3 py-1 rounded shadow hover:bg-orange-200 transition"
               >
                 Book Appointment
@@ -47,7 +47,7 @@ export default function Home() {
 
               {/* Button */}
               <Link
-                to="/appointment/transport"
+                to="/"
                 className="mt-2 bg-orange-100 text-blue-700 font-semibold px-3 py-1 rounded shadow hover:bg-orange-200 transition"
               >
                 Book Appointment
