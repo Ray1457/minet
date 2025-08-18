@@ -1,5 +1,24 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react'
 
+// Base URL for API in production (Render). In dev, leave blank to use Vite proxy.
+const API_BASE = (import.meta?.env?.VITE_API_URL || '').replace(/\/$/, '')
+
+function toAbsoluteUrl(path) {
+  if (!path) return path
+  // Already absolute
+  if (/^https?:\/\//i.test(path)) return path
+  // Prefix relative backend paths like /uploads/...
+  return `${API_BASE}${path}`
+}
+
+function normalizeUser(user) {
+  if (!user) return user
+  return {
+    ...user,
+    profile_picture_url: toAbsoluteUrl(user.profile_picture_url),
+  }
+}
+
 const AuthContext = createContext(null)
 
 export function AuthProvider({ children }) {
@@ -22,7 +41,7 @@ export function AuthProvider({ children }) {
   }, [user])
 
   const login = async (email, password) => {
-    const res = await fetch('/api/login', {
+  const res = await fetch(`${API_BASE}/api/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),
@@ -31,7 +50,7 @@ export function AuthProvider({ children }) {
     if (!res.ok) {
       throw new Error(data?.error || 'Login failed')
     }
-    setUser(data.user)
+  setUser(normalizeUser(data.user))
   }
 
   const register = async (emailOrPayload, maybePassword) => {
@@ -47,11 +66,11 @@ export function AuthProvider({ children }) {
       if (address) form.set('address', address)
       if (phone) form.set('phone', phone)
       if (profilePicture instanceof File) form.set('profile_picture', profilePicture)
-      res = await fetch('/api/register', { method: 'POST', body: form })
+      res = await fetch(`${API_BASE}/api/register`, { method: 'POST', body: form })
     } else {
       const email = emailOrPayload
       const password = maybePassword
-      res = await fetch('/api/register', {
+      res = await fetch(`${API_BASE}/api/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
@@ -61,7 +80,7 @@ export function AuthProvider({ children }) {
     if (!res.ok) {
       throw new Error(data?.error || 'Registration failed')
     }
-    setUser(data.user)
+    setUser(normalizeUser(data.user))
   }
 
   const logout = () => setUser(null)
