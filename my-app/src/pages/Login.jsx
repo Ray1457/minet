@@ -6,6 +6,7 @@ import { useNavigate, Link } from "react-router-dom";
 
 const Login = () => {
     const [form, setForm] = useState({ email: "", password: "" });
+    const [error, setError] = useState("");
     const { login } = useAuth();
     const navigate = useNavigate();
 
@@ -15,8 +16,13 @@ const Login = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        await login(form.email, form.password);
-        navigate("/");
+        setError("");
+        try {
+            await login(form.email, form.password);
+            navigate("/");
+        } catch (err) {
+            setError(err.message || "Login failed");
+        }
     };
 
     return (
@@ -54,6 +60,10 @@ const Login = () => {
                             value={form.password}
                             onChange={handleChange}
                         />
+
+                        {error ? (
+                            <p className="text-red-600 text-xs mt-1 mb-3">{error}</p>
+                        ) : null}
 
                         <button
                             type="submit"

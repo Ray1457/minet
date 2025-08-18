@@ -2,24 +2,48 @@ import { Link } from 'react-router-dom'
 import Layout from '../components/Layout'
 import Card2 from '../components/Card2'
 import Card3 from '../components/Card3'
+import { useAuth } from '../context/AuthContext'
 
 export default function Home() {
+    const { user, isAuthenticated } = useAuth()
+    const name = user?.name || '—'
+    const email = user?.email || '—'
+    const age = (user?.age ?? user?.age === 0) ? user.age : '—'
+    const phone = user?.phone || '—'
+    const address = user?.address || '—'
+    const avatar = user?.profile_picture_url || ''
   return (
     <Layout className="min-h-screen pb-48">
       
         <main className='flex h-auto w-full px-12 gap-12 font-blockblueprint mt-12 text-gray-900'>
             <div className='flex flex-col w-1/3 gap-16'>
                 <Card2>
-                    <h1 className='text-4xl font-bold text-gray-900 mb-4'>
-                        About
-                    </h1>
+                    <div className="flex flex-col items-start justify-center">
+                        {avatar ? (
+                            <img src={avatar} alt={name || 'Profile'} className="w-48 h-48 rounded-md border-2 border-black object-cover my-4 mx-auto" />
+                        ) : (
+                            <div className="w-20 h-20 rounded-full border-2 border-black bg-cream mr-4 flex items-center justify-center text-xl">
+                                {typeof name === 'string' && name.trim() ? name.trim().slice(0,1).toUpperCase() : '?'}
+                            </div>
+                        )}
+                        <div>
+                            <h1 className='text-4xl font-bold text-gray-900 mb-4'>
+                                About
+                            </h1>
                     <p className='text-lg text-gray-600'>
-                        Full Name: John Doe <br />
-                        Email: john.doe@example.com <br />
-                        Age : 69 <br />
-                        Phone Number : 123-456-7890 <br />
-                        Address : Dihpur , UPM
+                                                        Full Name: {name} <br />
+                                                        Email: {email} <br />
+                                                        Age : {age} <br />
+                                                        Phone Number : {phone} <br />
+                                                        Address : {address}
                     </p>
+                                                {!isAuthenticated && (
+                                                    <p className='text-sm text-gray-500 mt-2'>
+                                                        <Link to="/login" className='underline'>Log in</Link> to see your details.
+                                                    </p>
+                                                )}
+                        </div>
+                    </div>
 
                 </Card2>
 
@@ -102,16 +126,21 @@ export default function Home() {
                 </p>
 
                 <Card2 className='' contentClassName='px-12 py-8'>
-                    <h1 className='text-4xl font-bold text-gray-900 mb-4'>
-                        Profile
-                    </h1>
-                    <p className='text-lg text-gray-600'>
-                        Full Name: John Doe <br />
-                        Email: john.doe@example.com <br />
-                        Age : 69 <br />
-                        Phone Number : 123-456-7890 <br />
-                        Address : Dihpur , UPM
-                    </p>
+                    <div className="flex items-center justify-start gap-12">
+                        <img src={avatar} alt={name || 'Profile'} className="w-48 h-48 rounded-md border-2 border-black object-cover my-4" />
+                        <div>
+                            <h1 className='text-4xl font-bold text-gray-900 mb-4'>
+                                Profile
+                            </h1>
+                            <p className='text-lg text-gray-600'>
+                                Full Name: {name} <br />
+                                Email: {email} <br />
+                                Age : {age} <br />
+                                Phone Number : {phone} <br />
+                                Address : {address}
+                            </p>
+                        </div>
+                    </div>
 
                     <h2 className='text-3xl font-bold text-gray-900 mt-6 mb-2'>
                         Details

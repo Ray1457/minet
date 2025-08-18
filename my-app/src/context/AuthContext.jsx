@@ -21,14 +21,47 @@ export function AuthProvider({ children }) {
     }
   }, [user])
 
-  const login = async (email, _password) => {
-    // TODO: replace with real API auth
-    setUser({ email })
+  const login = async (email, password) => {
+    const res = await fetch('/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    })
+    const data = await res.json().catch(() => ({}))
+    if (!res.ok) {
+      throw new Error(data?.error || 'Login failed')
+    }
+    setUser(data.user)
   }
 
-  const register = async (email, _password) => {
-    // TODO: replace with real API registration
-    setUser({ email })
+  const register = async (emailOrPayload, maybePassword) => {
+    // Support both register(email, password) and register({ email, password, age, address, phone, profilePicture })
+    let res
+    if (typeof emailOrPayload === 'object' && emailOrPayload !== null) {
+      const { name, email, password, age, address, phone, profilePicture } = emailOrPayload
+      const form = new FormData()
+      if (name) form.set('name', name)
+      form.set('email', email || '')
+      form.set('password', password || '')
+      if (age !== undefined && age !== null && age !== '') form.set('age', String(age))
+      if (address) form.set('address', address)
+      if (phone) form.set('phone', phone)
+      if (profilePicture instanceof File) form.set('profile_picture', profilePicture)
+      res = await fetch('/api/register', { method: 'POST', body: form })
+    } else {
+      const email = emailOrPayload
+      const password = maybePassword
+      res = await fetch('/api/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      })
+    }
+    const data = await res.json().catch(() => ({}))
+    if (!res.ok) {
+      throw new Error(data?.error || 'Registration failed')
+    }
+    setUser(data.user)
   }
 
   const logout = () => setUser(null)
