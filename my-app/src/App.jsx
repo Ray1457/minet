@@ -3,6 +3,8 @@ import Home from './pages/Home'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import Price from './pages/price'
+import Dashboard from './pages/Dashboard'
+import Contact from './pages/Contact'
 
 
 import Navbar from './components/Navbar'
@@ -19,6 +21,8 @@ export default function App() {
           <Route path="/login" element={<Login />} />   
           <Route path="/register" element={<Register />} /> 
           <Route path="/price" element={<Price />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/contact" element={<Contact />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>
