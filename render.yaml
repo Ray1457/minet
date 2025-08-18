@@ -1,4 +1,5 @@
 services:
+  # === Backend (Flask) ===
   - type: web
     name: upm-backend
     env: python
@@ -14,7 +15,9 @@ services:
       name: uploads
       mountPath: /opt/render/project/src/backend/uploads
       sizeGB: 1
-  - type: static
+
+  # === Frontend (Vite React) ===
+  - type: static_site
     name: upm
     buildCommand: cd client && npm ci && npm run build
     staticPublishPath: client/dist
