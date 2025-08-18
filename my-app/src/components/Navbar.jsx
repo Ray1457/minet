@@ -1,7 +1,10 @@
 import flag from '../assets/imgs/flag.png';
+import { useState } from 'react';
 
 
 export default function Navbar({ isAuthenticated = false, onLogout }) {
+  const [topicsOpen, setTopicsOpen] = useState(false);
+  const [servicesOpen, setServicesOpen] = useState(false);
   return (
     <header className="w-full bg-cream font-blockblueprint relative h-32">
       <div className="flex flex-col w-full h-full">
@@ -43,12 +46,58 @@ export default function Navbar({ isAuthenticated = false, onLogout }) {
 
         <div className='flex justify-between h-1/2 w-full'>
           <nav className='flex justify-around items-center w-1/3'>
-              <a href="/topics" className='text-xl text-gray-700'>
+              {/* Topics with dropdown that stays open while hovering menu */}
+              <div
+                className="relative"
+                onMouseEnter={() => setTopicsOpen(true)}
+                onMouseLeave={() => setTopicsOpen(false)}
+              >
+                <a
+                  href="/topics"
+                  className="text-xl text-gray-700 inline-flex items-center gap-1"
+                  aria-haspopup="true"
+                  aria-expanded={topicsOpen}
+                >
                   Topics
-              </a>
-              <a href="/services" className='text-xl text-gray-700'>
+                  <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path d="M5.23 7.21a.75.75 0 011.06.02L10 10.2l3.71-2.97a.75.75 0 11.94 1.16l-4.24 3.4a.75.75 0 01-.94 0L5.25 8.39a.75.75 0 01-.02-1.18z"/>
+                  </svg>
+                </a>
+                {/* Dropdown menu */}
+                <div
+                  className={`absolute left-0 top-full mt-0 w-48 bg-cream border-2 border-black rounded-md shadow-lg z-50 transition 
+                    ${topicsOpen ? 'opacity-100 translate-y-0 visible pointer-events-auto' : 'opacity-0 translate-y-1 invisible pointer-events-none'}`}
+                  role="menu"
+                >
+                  <a href="/map" className="block px-3 py-2 text-gray-800 hover:bg-gray-100" role="menuitem">Map</a>
+                  <a href="/price" className="block px-3 py-2 text-gray-800 hover:bg-gray-100" role="menuitem">Prices</a>
+                </div>
+              </div>
+        {/* Services with dropdown (submenu: Electricity, Water) */}
+              <div
+                className="relative"
+                onMouseEnter={() => setServicesOpen(true)}
+                onMouseLeave={() => setServicesOpen(false)}
+              >
+                <a
+                  href="/services"
+                  className="text-xl text-gray-700 inline-flex items-center gap-1"
+                  aria-haspopup="true"
+                  aria-expanded={servicesOpen}
+                >
                   Services
-              </a>
+                  <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path d="M5.23 7.21a.75.75 0 011.06.02L10 10.2l3.71-2.97a.75.75 0 11.94 1.16l-4.24 3.4a.75.75 0 01-.94 0L5.25 8.39a.75.75 0 01-.02-1.18z"/>
+                  </svg>
+                </a>
+                <div
+                  className={`absolute left-0 top-full mt-0 w-56 bg-cream border-2 border-black rounded-md shadow-lg z-50 transition ${servicesOpen ? 'opacity-100 translate-y-0 visible pointer-events-auto' : 'opacity-0 translate-y-1 invisible pointer-events-none'}`}
+                  role="menu"
+                >
+          <a href="/services/electricity" className="block px-3 py-2 text-gray-800 hover:bg-gray-100" role="menuitem">Electricity</a>
+          <a href="/services/water" className="block px-3 py-2 text-gray-800 hover:bg-gray-100" role="menuitem">Water</a>
+                </div>
+              </div>
               <a href="/scam-alert" className='text-xl text-gray-700 bg-red-500 rounded-md px-2 py-1'>
                   Scam Alert
               </a>
