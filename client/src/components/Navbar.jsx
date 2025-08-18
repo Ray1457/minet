@@ -1,10 +1,14 @@
 import flag from '../assets/imgs/flag.png';
 import { useState } from 'react';
+import { useAuth } from '../context/AuthContext';
 
 
 export default function Navbar({ isAuthenticated = false, onLogout }) {
   const [topicsOpen, setTopicsOpen] = useState(false);
   const [servicesOpen, setServicesOpen] = useState(false);
+  const { user } = useAuth();
+  const avatar = user?.profile_picture_url || '';
+  const name = user?.name || user?.email || '';
   return (
     <header className="w-full bg-cream font-blockblueprint relative h-32">
       <div className="flex flex-col w-full h-full">
@@ -28,10 +32,18 @@ export default function Navbar({ isAuthenticated = false, onLogout }) {
                 title="Profile"
                 className="h-10 w-10 rounded-full bg-theme-orange text-cream flex items-center justify-center border-2 border-dark-orange shadow-md hover:shadow-sm transition-shadow"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-6 w-6">
-                  <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4z"/>
-                  <path d="M4 20c0-4.418 3.582-8 8-8s8 3.582 8 8H4z"/>
-                </svg>
+                {avatar ? (
+                  <img
+                    src={avatar}
+                    alt={name ? `${name}'s avatar` : 'Profile'}
+                    className="h-full w-full rounded-full object-cover"
+                  />
+                ) : (
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-6 w-6">
+                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4z"/>
+                    <path d="M4 20c0-4.418 3.582-8 8-8s8 3.582 8 8H4z"/>
+                  </svg>
+                )}
               </a>
             )}
           </div>
@@ -52,8 +64,7 @@ export default function Navbar({ isAuthenticated = false, onLogout }) {
                 onMouseEnter={() => setTopicsOpen(true)}
                 onMouseLeave={() => setTopicsOpen(false)}
               >
-                <a
-                  href="/topics"
+                <p
                   className="text-xl text-gray-700 inline-flex items-center gap-1"
                   aria-haspopup="true"
                   aria-expanded={topicsOpen}
@@ -62,7 +73,7 @@ export default function Navbar({ isAuthenticated = false, onLogout }) {
                   <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                     <path d="M5.23 7.21a.75.75 0 011.06.02L10 10.2l3.71-2.97a.75.75 0 11.94 1.16l-4.24 3.4a.75.75 0 01-.94 0L5.25 8.39a.75.75 0 01-.02-1.18z"/>
                   </svg>
-                </a>
+                </p>
                 {/* Dropdown menu */}
                 <div
                   className={`absolute left-0 top-full mt-0 w-48 bg-cream border-2 border-black rounded-md shadow-lg z-50 transition 
@@ -79,8 +90,7 @@ export default function Navbar({ isAuthenticated = false, onLogout }) {
                 onMouseEnter={() => setServicesOpen(true)}
                 onMouseLeave={() => setServicesOpen(false)}
               >
-                <a
-                  href="/services"
+                <p
                   className="text-xl text-gray-700 inline-flex items-center gap-1"
                   aria-haspopup="true"
                   aria-expanded={servicesOpen}
@@ -89,7 +99,7 @@ export default function Navbar({ isAuthenticated = false, onLogout }) {
                   <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                     <path d="M5.23 7.21a.75.75 0 011.06.02L10 10.2l3.71-2.97a.75.75 0 11.94 1.16l-4.24 3.4a.75.75 0 01-.94 0L5.25 8.39a.75.75 0 01-.02-1.18z"/>
                   </svg>
-                </a>
+                </p>
                 <div
                   className={`absolute left-0 top-full mt-0 w-56 bg-cream border-2 border-black rounded-md shadow-lg z-50 transition ${servicesOpen ? 'opacity-100 translate-y-0 visible pointer-events-auto' : 'opacity-0 translate-y-1 invisible pointer-events-none'}`}
                   role="menu"

@@ -7,7 +7,9 @@ import Dashboard from './pages/Dashboard'
 import Contact from './pages/Contact'
 import Tutorials from './pages/tutorials'
 import Scammer from './pages/Scammer'
-import Healthcare from './pages/Healthcare'
+import Healthcare from './pages/Health'
+import MapPage from './pages/Map'
+import Electricity from './pages/Electrcity'
 
 
 
@@ -28,8 +30,10 @@ export default function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/tutorials" element={<Tutorials />} />
-          <Route path="/scammer" element={<Scammer />} />
+          <Route path="/scam-alert" element={<Scammer />} />
           <Route path="/healthcare" element={<Healthcare />} />
+          <Route path="/map" element={<MapPage />} />
+          <Route path="/electricity" element={<Electricity />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

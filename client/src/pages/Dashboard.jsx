@@ -146,7 +146,17 @@ export default function Home() {
                         Details
                     </h2>
                     <p className='text-md text-gray-600'>
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.   
+                        <Link to="/healthcare" className='underline text-blue-600'>Click here</Link> for medical details <br />
+                        <Link to="/electricity" className='underline text-blue-600'>Click here</Link> for electricity department <br />
+
+                        DOB - 19 July 19XX <br />
+                        S/o Atmbghs Jg, R/o 238, BackLane, Dihpur, UPM. <br />
+                        P.O. Dihpur-3. <br />
+
+                        for official certificates issued under your name, check the left panel.
+                        to apply for other government certificates scroll below. <br />
+
+                        <Link to="/scam-alert" className='underline text-blue-600'>Learn more</Link> about scam alerts  <br />
 
                     </p>
                 </Card2>

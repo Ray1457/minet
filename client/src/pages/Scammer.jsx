@@ -4,7 +4,7 @@ import right11 from '../assets/imgs/right11.png'
 
 export default function ScamWarning() {
   return (
-    <Layout className="min-h-screen pb-48 font-['Block-Blueprint'] text-black">
+    <Layout className="min-h-screen pb-48 font-blockblueprint text-black">
 
       {/* Title */}
       <div className="flex justify-center items-center gap-4 mt-6 select-none">
@@ -46,10 +46,10 @@ export default function ScamWarning() {
           <div className="p-4 md:p-6  leading-relaxed">
             <h2 className="font-extrabold underline mb-2 text-3xl">PRECAUTIONS:</h2>
             <p className='text-sm'>
-              Don’t share confidential details like banking details, addresses, etc. with anybody.
-              Don’t give anybody you don’t know access to your dot-com profile. The Government of UPM does NOT ask
-              for any details except your name and telephone no., don’t share any other details. Keep strong passwords
-              that are difficult to guess, not things like your birthday or worse, your name.
+              Don’t share confidential details like banking details, addresses, etc. with anybody. <br />
+              Don’t give anybody you don’t know access to your dot-com profile. The Government of UPM does NOT ask <br />
+              for any details except your name and telephone no., don’t share any other details. Keep strong passwords <br />
+              that are difficult to guess, not things like your birthday or worse, your name. <br />
             </p>
           </div>
 
