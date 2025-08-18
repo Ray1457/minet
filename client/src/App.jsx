@@ -5,6 +5,9 @@ import Register from './pages/Register'
 import Price from './pages/price'
 import Dashboard from './pages/Dashboard'
 import Contact from './pages/Contact'
+import Tutorials from './pages/tutorials'
+import Healthcare from './pages/Healthcare'
+
 
 
 import Navbar from './components/Navbar'
@@ -23,6 +26,8 @@ export default function App() {
           <Route path="/price" element={<Price />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/tutorials" element={<Tutorials />} />
+          <Route path="/healthcare" element={<Healthcare />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

@@ -5,72 +5,68 @@ import Trending from '../assets/imgs/trending.png'
 
 export default function Price() {
   return (
-    <Layout className="min-h-screen pb-48">
-      {/* Center the demo window within the page container */}
-      <div className="page-container flex flex-col items-center justify-center py-16 space-y-12">
-        
-        {/* Window Container with Chart */}
-        <div className="max-w-3xl w-full border border-black rounded-md">
-          {/* Top Bar */}
-          <div className="flex items-center space-x-2 px-2 py-1 bg-[#D96F32] rounded-t-md shadow-[0_3px_0_0_#D96F32]">
-            <div className="w-3 h-3 bg-[#f9f1e8] border border-black rounded-full" />
-            <div className="w-3 h-3 bg-[#ff1b19] border border-black rounded-full" />
-            <div className="w-3 h-3 bg-[#fdb563] border border-black rounded-full" />
-          </div>
+    <Layout className="min-h-screen pb-48 font-['Block-Blueprint']">
+      {/* Price Rates page-content */}
+      <div className="page-container flex flex-col items-center justify-center py-12 space-y-10">
+        {/* Title tab */}
+        <div className="inline-flex px-12 py-4 bg-[#D96F32] text-white border-2 border-black rounded-b-md font-blockblueprint font-bold tracking-wider shadow-[0_6px_0_0_#c55f26]">
+          PRICE RATES
+        </div>
 
-          {/* Content */}
-          <div className="p-6 flex justify-center">
-            <img 
-              src={prices} 
-              alt="Price chart" 
-              className="w-[700px] h-auto object-contain"
-            />
+        {/* Chart Window with offset panel */}
+        <div className="relative w-full max-w-5xl">
+          <div className="absolute inset-0 translate-x-3 translate-y-3 bg-[#D96F32] rounded-md" aria-hidden="true" />
+          <div className="relative bg-white border-2 border-black rounded-md overflow-hidden">
+            {/* Top Bar */}
+            <div className="flex items-center space-x-2 px-2 py-1 bg-[#D96F32] rounded-t-md shadow-[0_3px_0_0_#D96F32]">
+              <div className="w-3 h-3 bg-[#f9f1e8] border border-black rounded-full" />
+              <div className="w-3 h-3 bg-[#ff1b19] border border-black rounded-full" />
+              <div className="w-3 h-3 bg-[#fdb563] border border-black rounded-full" />
+            </div>
+            {/* Content */}
+            <div className="p-4 md:p-6 flex justify-center bg-white">
+              <img src={prices} alt="Price chart" className="w-full max-w-[900px] h-auto object-contain" />
+            </div>
           </div>
         </div>
 
-        {/* Table Section */}
-        <div className="overflow-x-auto">
-          <table className="border border-black rounded-md shadow-[8px_8px_0_0_#D96F32]">
-            <thead>
-              <tr className="bg-[#D96F32] text-[#f9f1e8]">
-                <th className="px-4 py-2 border border-black">S.No</th>
-                <th className="px-8 py-2 border border-black">Product</th>
-                <th className="px-8 py-2 border border-black">Price in tons (<span className="italic">ℳ</span>)</th>
-              </tr>
-            </thead>
-            <tbody className="bg-[#f9f1e8] text-black font-semibold">
-              <tr>
-                <td className="px-4 py-2 border border-black text-center">1</td>
-                <td className="px-8 py-2 border border-black text-center">Wheat</td>
-                <td className="px-8 py-2 border border-black text-center">520<span className="italic">ℳ</span> <span className="">↗</span></td>
-              </tr>
-              <tr>
-                <td className="px-4 py-2 border border-black text-center">2</td>
-                <td className="px-8 py-2 border border-black text-center">Rice</td>
-                <td className="px-8 py-2 border border-black text-center">498<span className="italic">ℳ</span> <span className="text-green-600">↗</span></td>
-              </tr>
-              <tr>
-                <td className="px-4 py-2 border border-black text-center">3</td>
-                <td className="px-8 py-2 border border-black text-center">Maize</td>
-                <td className="px-8 py-2 border border-black text-center">555<span className="italic">ℳ</span> <span className="text-green-600">↗</span></td>
-              </tr>
-              <tr>
-                <td className="px-4 py-2 border border-black text-center">4</td>
-                <td className="px-8 py-2 border border-black text-center">Cotton</td>
-                <td className="px-8 py-2 border border-black text-center">540<span className="italic">ℳ</span> <span className="text-red-600">↘</span></td>
-              </tr>
-              <tr>
-                <td className="px-4 py-2 border border-black text-center">5</td>
-                <td className="px-8 py-2 border border-black text-center">Arhar</td>
-                <td className="px-8 py-2 border border-black text-center">510<span className="italic">ℳ</span> <span className="text-red-600">↘</span></td>
-              </tr>
-              <tr>
-                <td className="px-4 py-2 border border-black text-center">6</td>
-                <td className="px-8 py-2 border border-black text-center">Moong</td>
-                <td className="px-8 py-2 border border-black text-center">490<span className="italic">ℳ</span> <span className="text-green-600">↗</span></td>
-              </tr>
-            </tbody>
-          </table>
+        {/* Table with offset shadow */}
+        <div className="relative w-full max-w-5xl">
+          <div className="absolute inset-0 translate-x-3 translate-y-3 bg-[#D96F32] rounded-md" aria-hidden="true" />
+          <div className="relative bg-white border-2 border-black rounded-md overflow-x-auto">
+            <table className="w-full table-fixed">
+              <thead>
+                <tr className="bg-[#D96F32] text-[#f9f1e8]">
+                  <th className="w-16 px-3 py-2 border-r-2 border-black text-center">S.No</th>
+                  <th className="px-4 py-2 border-r-2 border-black text-left">Product</th>
+                  <th className="w-56 px-4 py-2 border-r-2 border-black text-center">Price in tons (<span className="italic">ℳ</span>)</th>
+                  <th className="w-16 px-2 py-2 text-center">Trend</th>
+                </tr>
+              </thead>
+              <tbody className="bg-[#f9f1e8] text-black font-semibold text-center">
+                {[
+                  { id: 1, name: 'Wheat', price: 520, icon: Trending },
+                  { id: 2, name: 'Rice', price: 498, icon: Trending },
+                  { id: 3, name: 'Maize', price: 555, icon: Trending },
+                  { id: 4, name: 'Cotton', price: 540, icon: Icon },
+                  { id: 5, name: 'Arhar', price: 510, icon: Icon },
+                  { id: 6, name: 'Moong', price: 490, icon: Trending },
+                ].map((row) => (
+                  <tr key={row.id} className="border-t-2 border-black">
+                    <td className="px-3 py-2 border-r-2 border-black">{row.id}</td>
+                    <td className="px-4 py-2 border-r-2 border-black">{row.name}</td>
+                    <td className="px-4 py-2 border-r-2 border-black">
+                      {row.price}
+                      <span className="italic">ℳ</span>
+                    </td>
+                    <td className="px-2 py-2">
+                      <img src={row.icon} alt="trend" className="inline-block w-6 h-6" />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
 
       </div>
