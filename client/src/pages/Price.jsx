@@ -1,7 +1,7 @@
 import Layout from '../components/Layout'
 import prices from '../assets/imgs/prices.png'
-import Icon from '../assets/imgs/icon.png'
-import Trending from '../assets/imgs/trending.png'
+import Icon from '../assets/imgs/Icon.png'
+import Trending from '../assets/imgs/Trending.png'
 
 export default function Price() {
   return (
