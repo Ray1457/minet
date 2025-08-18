@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Link } from 'react-router-dom'
 import Home from './pages/Home'
 import Login from './pages/Login'
 import Register from './pages/Register'
+import Price from './pages/price'
 
 
 import Navbar from './components/Navbar'
@@ -17,6 +18,7 @@ export default function App() {
           <Route path="/" element={<Home />} />        
           <Route path="/login" element={<Login />} />   
           <Route path="/register" element={<Register />} /> 
+          <Route path="/price" element={<Price />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>
