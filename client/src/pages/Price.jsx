@@ -45,11 +45,11 @@ export default function Price() {
               </thead>
               <tbody className="bg-[#f9f1e8] text-black font-semibold text-center">
                 {[
-                  { id: 1, name: 'Wheat', price: 520, icon: Trending },
+                  { id: 1, name: 'Orange', price: 520, icon: Trending },
                   { id: 2, name: 'Rice', price: 498, icon: Trending },
-                  { id: 3, name: 'Maize', price: 555, icon: Trending },
-                  { id: 4, name: 'Cotton', price: 540, icon: Icon },
-                  { id: 5, name: 'Arhar', price: 510, icon: Icon },
+                  { id: 3, name: 'Sugarcane', price: 555, icon: Trending },
+                  { id: 4, name: 'Lime', price: 540, icon: Icon },
+                  { id: 5, name: 'Wheat', price: 510, icon: Icon },
                   { id: 6, name: 'Moong', price: 490, icon: Trending },
                 ].map((row) => (
                   <tr key={row.id} className="border-t-2 border-black">

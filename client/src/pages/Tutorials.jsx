@@ -3,13 +3,16 @@ import Layout from '../components/Layout'
 import Card4 from '../components/Card4'
 import Card1 from '../components/Card1'
 import Card2 from '../components/Card2'
+import tut1 from '../assets/imgs/tut1.png'
+import tut2 from '../assets/imgs/tut2.png'
+import tut3 from '../assets/imgs/tut3.png'
 
 // Tutorial videos (ensure these files exist at client/src/assets/tuts/)
 import video1 from '../assets/tuts/1.mp4'
 import video2 from '../assets/tuts/2.mp4'
 import video3 from '../assets/tuts/3.mp4'
 
-function TutorialVideo({ src, subtitle }) {
+function TutorialVideo({ src, subtitle, thumbnail }) {
   const [started, setStarted] = useState(false)
   const videoRef = useRef(null)
 
@@ -23,11 +26,25 @@ function TutorialVideo({ src, subtitle }) {
 
   return (
     <div className="flex flex-col items-center text-center space-y-3 w-full">
-      {/* Media area: placeholder before start, video after */}
+      {/* Media area: thumbnail before start, video after */}
       <div className="w-64 max-w-full">
         {!started ? (
-          <div className="aspect-video bg-gray-200 border-2 border-dashed border-gray-400 flex items-center justify-center rounded-md">
-            <span className="text-gray-600 text-2xl">▶</span>
+          <div className="relative aspect-video rounded-md border border-black overflow-hidden">
+            {thumbnail ? (
+              <img 
+                src={thumbnail} 
+                alt="Video thumbnail" 
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="aspect-video bg-gray-200 border-2 border-dashed border-gray-400 flex items-center justify-center">
+                <span className="text-gray-600 text-2xl">▶</span>
+              </div>
+            )}
+            {/* Play overlay */}
+            <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+              <span className="text-white text-4xl drop-shadow-lg">▶</span>
+            </div>
           </div>
         ) : (
           <video
@@ -64,18 +81,18 @@ export default function Tutorials() {
 
           {/* Card 1 */}
           <Card2 title="Welcome to .com for all!" showTab showChromeBar>
-            <TutorialVideo src={video1} subtitle="How to operate" />
+            <TutorialVideo src={video1} subtitle="How to operate" thumbnail={tut1} />
           </Card2>
 
           {/* Card 2 */}
           <Card2 title="Sign Up!" showTab showChromeBar>
-            <TutorialVideo src={video2} subtitle="Create your first profile" />
+            <TutorialVideo src={video2} subtitle="Create your first profile" thumbnail={tut2} />
           </Card2>
 
           {/* Card 3 */}
           <Card2 title="Apply!" showTab showChromeBar>
-            <TutorialVideo src={video3} subtitle="Apply for documents hassle-free" />
-          </Card2 >
+            <TutorialVideo src={video3} subtitle="Apply for documents hassle-free" thumbnail={tut3} />
+          </Card2>
 
         </div>
       </Card4>
