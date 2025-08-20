@@ -151,8 +151,8 @@ export default function Home() {
                         <Link to="/electricity" className='underline text-blue-600'>Click here</Link> for electricity department <br />
 
                         DOB - 19 July 19XX <br />
-                        S/o Atmbghs Jg, R/o 238, BackLane, Dihpur, UPM. <br />
-                        P.O. Dihpur-3. <br />
+                        R/o {address}. <br />
+                        P.O. Susland - 69. <br />
 
                         for official certificates issued under your name, check the left panel.
                         to apply for other government certificates scroll below. <br />
