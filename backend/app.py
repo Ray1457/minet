@@ -8,15 +8,30 @@ from flask_cors import CORS
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
 import uuid
+from dotenv import load_dotenv
+import random
+from datetime import datetime
+import stripe
+
+# Load local .env in development (no-op in production if not present)
+load_dotenv()
+
 
 
 def create_app():
     app = Flask(__name__)
     # In real apps, set a strong secret via environment variable
     app.config["SECRET_KEY"] = os.getenv("FLASK_SECRET_KEY", "dev-secret-change-me")
+    # Sensitive keys via environment
+    app.config['STRIPE_SECRET_KEY'] = os.getenv('STRIPE_SECRET_KEY')
+    app.config['STRIPE_PUBLISHABLE_KEY'] = os.getenv('STRIPE_PUBLISHABLE_KEY')
+    app.config['FRONTEND_URL'] = os.getenv('FRONTEND_URL', 'http://127.0.0.1:5173')
+    if app.config['STRIPE_SECRET_KEY']:
+        stripe.api_key = app.config['STRIPE_SECRET_KEY']
 
     # Allow Vite dev server to call the API in development
-    CORS(app, resources={r"/api/*": {"origins": "*"}})
+    allowed_origins = os.getenv("CORS_ALLOWED_ORIGINS", "*")
+    CORS(app, resources={r"/api/*": {"origins": allowed_origins}})
 
     # Ensure data dir, uploads dir, and database exist
     base_dir = Path(__file__).parent
@@ -58,9 +73,25 @@ def create_app():
         ensure_column("profile_picture TEXT", "profile_picture")
         conn.commit()
 
-    @app.get("/api/health")
-    def health():
-        return jsonify({"status": "ok"})
+        # Bills table
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS bills (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                month TEXT NOT NULL,
+                amount_cents INTEGER NOT NULL,
+                currency TEXT NOT NULL DEFAULT 'usd',
+                status TEXT NOT NULL DEFAULT 'due', -- 'due' | 'paid'
+                stripe_session_id TEXT,
+                paid_at TIMESTAMP,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY(user_id) REFERENCES users(id)
+            )
+            """
+        )
+        conn.commit()
+
 
     @app.post("/api/register")
     def register():
@@ -101,10 +132,24 @@ def create_app():
         pwd_hash = generate_password_hash(password)
         try:
             with closing(get_db_connection()) as conn:
-                conn.execute(
+                cur = conn.execute(
                     "INSERT INTO users (email, password_hash, name, age, address, phone, profile_picture) VALUES (?, ?, ?, ?, ?, ?, ?)",
                     (email, pwd_hash, name, age, address, phone, profile_filename),
                 )
+                user_id = cur.lastrowid
+                # Seed only May, June, July 2000; May paid, June & July due
+                seed_rows = [
+                    ("May 2000", 'paid'),
+                    ("June 2000", 'due'),
+                    ("July 2000", 'due'),
+                ]
+                for month_label, status in seed_rows:
+                    amount_cents = random.randint(3000, 10000) # $30 -> $100
+                    paid_at = datetime.utcnow() if status == 'paid' else None
+                    conn.execute(
+                        "INSERT INTO bills (user_id, month, amount_cents, status, paid_at) VALUES (?, ?, ?, ?, ?)",
+                        (user_id, month_label, amount_cents, status, paid_at),
+                    )
                 conn.commit()
         except sqlite3.IntegrityError:
             return jsonify({"error": "Email is already registered."}), 409
@@ -112,6 +157,7 @@ def create_app():
         picture_url = f"/uploads/{profile_filename}" if profile_filename else None
         return jsonify({
             "user": {
+                "id": user_id,
                 "email": email,
                 "name": name,
                 "age": age,
@@ -143,6 +189,7 @@ def create_app():
         picture_url = f"/uploads/{row['profile_picture']}" if row["profile_picture"] else None
         return jsonify({
             "user": {
+                "id": row["id"],
                 "email": row["email"],
                 "name": row["name"],
                 "age": row["age"],
@@ -151,6 +198,129 @@ def create_app():
                 "profile_picture_url": picture_url,
             }
         })
+
+    @app.get("/api/bills")
+    def get_bills():
+        user_id = request.args.get("user_id", type=int)
+        if not user_id:
+            return jsonify({"error": "user_id is required"}), 400
+        with closing(get_db_connection()) as conn:
+            rows = conn.execute(
+                "SELECT id, month, amount_cents, currency, status, stripe_session_id, paid_at, created_at FROM bills WHERE user_id = ? ORDER BY id ASC",
+                (user_id,),
+            ).fetchall()
+        bills = [
+            {
+                "id": r["id"],
+                "month": r["month"],
+                "amount_cents": r["amount_cents"],
+                "currency": r["currency"],
+                "status": r["status"],
+                "stripe_session_id": r["stripe_session_id"],
+                "paid_at": r["paid_at"],
+                "created_at": r["created_at"],
+            }
+            for r in rows
+        ]
+        return jsonify({"bills": bills})
+
+    @app.post("/api/bills/checkout")
+    def create_checkout_session():
+        if not app.config['STRIPE_SECRET_KEY']:
+            return jsonify({"error": "Stripe is not configured"}), 500
+        data = request.get_json(silent=True) or {}
+        bill_id = data.get("bill_id")
+        success_url = data.get("success_url") or f"{app.config['FRONTEND_URL']}/electricity?session_id={{CHECKOUT_SESSION_ID}}"
+        cancel_url = data.get("cancel_url") or f"{app.config['FRONTEND_URL']}/electricity"
+        if not bill_id:
+            return jsonify({"error": "bill_id is required"}), 400
+        with closing(get_db_connection()) as conn:
+            bill = conn.execute(
+                "SELECT id, user_id, month, amount_cents, currency, status FROM bills WHERE id = ?",
+                (bill_id,),
+            ).fetchone()
+            if not bill:
+                return jsonify({"error": "Bill not found"}), 404
+            if bill["status"] == "paid":
+                return jsonify({"error": "Bill already paid"}), 400
+
+        try:
+            session = stripe.checkout.Session.create(
+                mode="payment",
+                line_items=[{
+                    "price_data": {
+                        "currency": bill["currency"],
+                        "product_data": {"name": f"Electricity bill - {bill['month']}"},
+                        "unit_amount": bill["amount_cents"],
+                    },
+                    "quantity": 1,
+                }],
+                success_url=success_url,
+                cancel_url=cancel_url,
+                metadata={"bill_id": str(bill_id)},
+            )
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+
+        with closing(get_db_connection()) as conn:
+            conn.execute(
+                "UPDATE bills SET stripe_session_id = ? WHERE id = ?",
+                (session.id, bill_id),
+            )
+            conn.commit()
+        return jsonify({"url": session.url, "session_id": session.id})
+
+    @app.get("/api/bills/checkout-status")
+    def checkout_status():
+        if not app.config['STRIPE_SECRET_KEY']:
+            return jsonify({"error": "Stripe is not configured"}), 500
+        session_id = request.args.get("session_id")
+        if not session_id:
+            return jsonify({"error": "session_id is required"}), 400
+        try:
+            session = stripe.checkout.Session.retrieve(session_id)
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+        if session.get("payment_status") == "paid":
+            bill_id = session.get("metadata", {}).get("bill_id")
+            if bill_id:
+                with closing(get_db_connection()) as conn:
+                    conn.execute(
+                        "UPDATE bills SET status = 'paid', paid_at = ? WHERE id = ?",
+                        (datetime.utcnow(), int(bill_id)),
+                    )
+                    conn.commit()
+        return jsonify({"payment_status": session.get("payment_status")})
+
+    @app.post("/api/bills/reset")
+    def reset_bills():
+        """Reset a user's bills to May, June, July 2000 with May paid, June/July due."""
+        data = request.get_json(silent=True) or {}
+        user_id = data.get("user_id")
+        if not user_id:
+            return jsonify({"error": "user_id is required"}), 400
+        with closing(get_db_connection()) as conn:
+            # Ensure user exists
+            u = conn.execute("SELECT id FROM users WHERE id = ?", (user_id,)).fetchone()
+            if not u:
+                return jsonify({"error": "User not found"}), 404
+            # Delete existing bills
+            conn.execute("DELETE FROM bills WHERE user_id = ?", (user_id,))
+            # Insert the three target months
+            seed_rows = [
+                ("May 2000", 'paid'),
+                ("June 2000", 'due'),
+                ("July 2000", 'due'),
+            ]
+            for month_label, status in seed_rows:
+                amount_cents = random.randint(1500, 7500)
+                paid_at = datetime.utcnow() if status == 'paid' else None
+                conn.execute(
+                    "INSERT INTO bills (user_id, month, amount_cents, status, paid_at) VALUES (?, ?, ?, ?, ?)",
+                    (user_id, month_label, amount_cents, status, paid_at),
+                )
+            conn.commit()
+        return jsonify({"ok": True})
 
     @app.get("/uploads/<path:filename>")
     def get_upload(filename: str):

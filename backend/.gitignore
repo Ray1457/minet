@@ -5,3 +5,6 @@
 # Bytecode
 __pycache__/
 *.pyc
+
+
+.env
