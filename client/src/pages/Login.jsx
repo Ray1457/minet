@@ -51,14 +51,14 @@ const Login = () => {
                         />
 
                         <label htmlFor="pwd" className="block font-bold mb-2 text-[#222]">
-                            Password
+                            Citizen Code
                         </label>
                         <input
                             id="pwd"
                             name="password"
                             className="block w-full px-3 py-2.5 rounded-md border border-black/10 bg-white mb-4 text-sm"
                             type="password"
-                            placeholder="Enter Password"
+                            placeholder="Enter Citizen Code"
                             value={form.password}
                             onChange={handleChange}
                         />
@@ -80,11 +80,10 @@ const Login = () => {
                             </a>
                         </div> */}
 
-                        <div className="mt-5">
-                            <Link to="/register" className="inline-block text-xs text-gray-700 underline opacity-95">
-                                Don't have an account? Register
-                            </Link>
-                        </div>
+                        <p className="text-sm text-gray-600 my-5 italic">
+                            Citizen code is a unique identifier for each citizen of United Pingdom of Minet, used to access various services and platforms.If you dont have one yet, please <Link to="/register" className="text-blue-500 underline">register</Link>.
+                        </p>
+
                     </form>
                 </Card1>
             </div>

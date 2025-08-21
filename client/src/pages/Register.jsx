@@ -72,42 +72,13 @@ const Register = () => {
                             autoComplete="off"
                         />
 
-                        <label htmlFor="pwd" className="block font-bold mb-2 text-[#222]">Password</label>
-                        <input
-                            id="pwd"
-                            name="password"
-                            className="block w-full px-3 py-2.5 rounded-md border border-black/10 bg-white mb-2 text-sm"
-                            type="password"
-                            placeholder="Enter Password"
-                            value={form.password}
-                            onChange={handleChange}
-                            autoComplete="off"
-                        />
-
-                        <label htmlFor="confirmPwd" className="block font-bold mb-2 text-[#222]">Confirm Password</label>
-                        <input
-                            id="confirmPwd"
-                            name="confirmPassword"
-                            className="block w-full px-3 py-2.5 rounded-md border border-black/10 bg-white mb-1 text-sm"
-                            type="password"
-                            placeholder="Confirm Password"
-                            value={form.confirmPassword}
-                            onChange={handleChange}
-                            autoComplete="off"
-                        />
-                        {form.confirmPassword && form.password !== form.confirmPassword ? (
-                            <p className="text-red-600 text-xs mt-1">Passwords do not match.</p>
-                        ) : null}
-
-                    
-
                         <label htmlFor="age" className="block font-bold mb-2 text-[#222]">Age</label>
                         <input
                             id="age"
                             name="age"
                             className="block w-full px-3 py-2.5 rounded-md border border-black/10 bg-white mb-4 text-sm"
                             type="number"
-                            placeholder="Enter Age (optional)"
+                            placeholder="Enter Age "
                             value={form.age}
                             onChange={handleChange}
                             min={0}
@@ -120,7 +91,7 @@ const Register = () => {
                             name="address"
                             className="block w-full px-3 py-2.5 rounded-md border border-black/10 bg-white mb-4 text-sm"
                             type="text"
-                            placeholder="Enter Address (optional)"
+                            placeholder="Enter Address "
                             value={form.address}
                             onChange={handleChange}
                             autoComplete="off"
@@ -132,7 +103,7 @@ const Register = () => {
                             name="phone"
                             className="block w-full px-3 py-2.5 rounded-md border border-black/10 bg-white mb-4 text-sm"
                             type="tel"
-                            placeholder="Enter Phone (optional)"
+                            placeholder="Enter Phone "
                             value={form.phone}
                             onChange={handleChange}
                             autoComplete="off"
@@ -156,7 +127,7 @@ const Register = () => {
                         <button
                             type="submit"
                             className="block w-full px-3.5 py-2.5 mt-5 rounded-md bg-dark-orange text-white font-bold text-sm shadow-[0_0.1875rem_0_rgba(0,0,0,0.06)]"
-                            disabled={form.password !== form.confirmPassword}
+
                         >
                             Register
                         </button>
