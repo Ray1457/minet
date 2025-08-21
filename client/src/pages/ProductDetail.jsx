@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
-import './Marketplace.css';
 
 export default function ProductDetail() {
   const { id } = useParams();
