@@ -4,6 +4,7 @@ from contextlib import closing
 from pathlib import Path
 
 from flask import Flask, jsonify, request, send_from_directory, url_for
+from marketplace import bp as marketplace_bp
 from flask_cors import CORS
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
@@ -105,8 +106,21 @@ def create_app():
         ensure_column("address TEXT", "address")
         ensure_column("phone TEXT", "phone")
         ensure_column("profile_picture TEXT", "profile_picture")
-        conn.commit()
-
+        # Products table for marketplace
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS products (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                price REAL NOT NULL,
+                description TEXT,
+                image_url TEXT,
+                category TEXT,
+                color TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+            """
+        )
         # Bills table
         conn.execute(
             """
@@ -125,6 +139,8 @@ def create_app():
             """
         )
         conn.commit()
+    # Register marketplace blueprint
+    app.register_blueprint(marketplace_bp)
 
         # Forums table
         conn.execute(
