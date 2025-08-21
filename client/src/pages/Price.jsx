@@ -1,5 +1,5 @@
 import Layout from '../components/Layout'
-import prices from '../assets/imgs/prices.png'
+import image_mainsuger from '../assets/imgs/image_mainsuger.png'
 import Icon from '../assets/imgs/Icon.png'
 import Trending from '../assets/imgs/Trending.png'
 
@@ -25,7 +25,7 @@ export default function Price() {
             </div>
             {/* Content */}
             <div className="p-4 md:p-6 flex justify-center bg-white">
-              <img src={prices} alt="Price chart" className="w-full max-w-[900px] h-auto object-contain" />
+              <img src={image_mainsuger} alt="Price chart" className="w-full max-w-[900px] h-auto object-contain" />
             </div>
           </div>
         </div>
