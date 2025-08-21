@@ -42,6 +42,15 @@ def add_product():
         product_id = cur.lastrowid
     return jsonify({'id': product_id}), 201
 
+@bp.route('/products/<int:product_id>', methods=['GET'])
+def get_product(product_id: int):
+    """Return a single product by id or 404"""
+    with closing(get_db_connection()) as conn:
+        row = conn.execute('SELECT * FROM products WHERE id = ?', (product_id,)).fetchone()
+    if not row:
+        return jsonify({'error': 'Product not found'}), 404
+    return jsonify({'product': dict(row)})
+
 @bp.route('/products/seed', methods=['POST'])
 def seed_products():
     """Add sample products to the marketplace"""

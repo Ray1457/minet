@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
 import './Marketplace.css';
 
 export default function Marketplace() {
+  const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -196,7 +198,14 @@ export default function Marketplace() {
 
               <div className="product-grid">
                 {filteredProducts.map((product) => (
-                  <article key={product.id} className="product-card">
+                  <article
+                    key={product.id}
+                    className="product-card"
+                    onClick={() => navigate(`/marketplace/${product.id}`)}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e)=> { if(e.key==='Enter') navigate(`/marketplace/${product.id}`) }}
+                  >
                     <div className="product-image-container">
                       {product.image_url ? (
                         <img

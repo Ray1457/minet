@@ -14,6 +14,7 @@ import ForumList from './pages/ForumList'
 import ForumDetail from './pages/ForumDetail'
 import ForumCreate from './pages/ForumCreate'
 import Marketplace from './pages/Marketplace'
+import ProductDetail from './pages/ProductDetail'
 
 import Navbar from './components/Navbar'
 import { AuthProvider, useAuth } from './context/AuthContext'
@@ -30,6 +31,7 @@ export default function App() {
           <Route path="/register" element={<Register />} /> 
           <Route path="/price" element={<Price />} />
           <Route path="/marketplace" element={<Marketplace />} />
+          <Route path="/marketplace/:id" element={<ProductDetail />} />
           <Route
             path="/dashboard"
             element={
