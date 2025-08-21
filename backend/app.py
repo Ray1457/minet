@@ -92,6 +92,35 @@ def create_app():
         )
         conn.commit()
 
+        # Forums table
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS forums (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                title TEXT NOT NULL,
+                body TEXT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY(user_id) REFERENCES users(id)
+            )
+            """
+        )
+        # Comments table
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS comments (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                forum_id INTEGER NOT NULL,
+                user_id INTEGER NOT NULL,
+                content TEXT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY(forum_id) REFERENCES forums(id),
+                FOREIGN KEY(user_id) REFERENCES users(id)
+            )
+            """
+        )
+        conn.commit()
+
 
     @app.post("/api/register")
     def register():
@@ -291,6 +320,134 @@ def create_app():
                     )
                     conn.commit()
         return jsonify({"payment_status": session.get("payment_status")})
+
+    # ===== Forums API =====
+    @app.get("/api/forums")
+    def list_forums():
+        q = (request.args.get("q") or "").strip()
+        sql = (
+            "SELECT f.id, f.title, f.body, f.created_at, f.user_id, "
+            "u.name AS author_name, u.email AS author_email, u.profile_picture AS author_pic "
+            "FROM forums f LEFT JOIN users u ON u.id = f.user_id "
+        )
+        args = []
+        if q:
+            sql += "WHERE f.title LIKE ? "
+            args.append(f"%{q}%")
+        sql += "ORDER BY f.created_at DESC"
+        with closing(get_db_connection()) as conn:
+            rows = conn.execute(sql, args).fetchall()
+        items = [
+            {
+                "id": r["id"],
+                "title": r["title"],
+                "body": r["body"],
+                "created_at": r["created_at"],
+                "user_id": r["user_id"],
+                "author": r["author_name"] or r["author_email"],
+                "author_avatar": (f"/uploads/{r['author_pic']}" if r["author_pic"] else None),
+            }
+            for r in rows
+        ]
+        return jsonify({"forums": items})
+
+    @app.post("/api/forums")
+    def create_forum():
+        data = request.get_json(silent=True) or {}
+        user_id = data.get("user_id")
+        title = (data.get("title") or "").strip()
+        body = (data.get("body") or "").strip()
+        if not user_id or not title or not body:
+            return jsonify({"error": "user_id, title and body are required"}), 400
+        with closing(get_db_connection()) as conn:
+            cur = conn.execute(
+                "INSERT INTO forums (user_id, title, body) VALUES (?, ?, ?)",
+                (user_id, title, body),
+            )
+            forum_id = cur.lastrowid
+            conn.commit()
+            row = conn.execute(
+                "SELECT f.id, f.title, f.body, f.created_at, f.user_id, u.name, u.email, u.profile_picture FROM forums f LEFT JOIN users u ON u.id = f.user_id WHERE f.id = ?",
+                (forum_id,),
+            ).fetchone()
+        return jsonify({
+            "forum": {
+                "id": row["id"],
+                "title": row["title"],
+                "body": row["body"],
+                "created_at": row["created_at"],
+                "user_id": row["user_id"],
+                "author": row["name"] or row["email"],
+                "author_avatar": (f"/uploads/{row['profile_picture']}" if row["profile_picture"] else None),
+            }
+        }), 201
+
+    @app.get("/api/forums/<int:forum_id>")
+    def get_forum(forum_id: int):
+        with closing(get_db_connection()) as conn:
+            fr = conn.execute(
+                "SELECT f.id, f.title, f.body, f.created_at, f.user_id, u.name, u.email, u.profile_picture FROM forums f LEFT JOIN users u ON u.id = f.user_id WHERE f.id = ?",
+                (forum_id,),
+            ).fetchone()
+            if not fr:
+                return jsonify({"error": "Forum not found"}), 404
+            crs = conn.execute(
+                "SELECT c.id, c.content, c.created_at, c.user_id, u.name, u.email, u.profile_picture FROM comments c LEFT JOIN users u ON u.id = c.user_id WHERE c.forum_id = ? ORDER BY c.created_at ASC",
+                (forum_id,),
+            ).fetchall()
+        comments = [
+            {
+                "id": r["id"],
+                "content": r["content"],
+                "created_at": r["created_at"],
+                "user_id": r["user_id"],
+                "author": r["name"] or r["email"],
+                "author_avatar": (f"/uploads/{r['profile_picture']}" if r["profile_picture"] else None),
+            }
+            for r in crs
+        ]
+        forum = {
+            "id": fr["id"],
+            "title": fr["title"],
+            "body": fr["body"],
+            "created_at": fr["created_at"],
+            "user_id": fr["user_id"],
+            "author": fr["name"] or fr["email"],
+            "author_avatar": (f"/uploads/{fr['profile_picture']}" if fr["profile_picture"] else None),
+        }
+        return jsonify({"forum": forum, "comments": comments})
+
+    @app.post("/api/forums/<int:forum_id>/comments")
+    def add_comment(forum_id: int):
+        data = request.get_json(silent=True) or {}
+        user_id = data.get("user_id")
+        content = (data.get("content") or "").strip()
+        if not user_id or not content:
+            return jsonify({"error": "user_id and content are required"}), 400
+        with closing(get_db_connection()) as conn:
+            fr = conn.execute("SELECT id FROM forums WHERE id = ?", (forum_id,)).fetchone()
+            if not fr:
+                return jsonify({"error": "Forum not found"}), 404
+            cur = conn.execute(
+                "INSERT INTO comments (forum_id, user_id, content) VALUES (?, ?, ?)",
+                (forum_id, user_id, content),
+            )
+            comment_id = cur.lastrowid
+            conn.commit()
+            row = conn.execute(
+                "SELECT c.id, c.content, c.created_at, c.user_id, u.name, u.email, u.profile_picture FROM comments c LEFT JOIN users u ON u.id = c.user_id WHERE c.id = ?",
+                (comment_id,),
+            ).fetchone()
+        return jsonify({
+            "comment": {
+                "id": row["id"],
+                "content": row["content"],
+                "created_at": row["created_at"],
+                "user_id": row["user_id"],
+                "author": row["name"] or row["email"],
+                "author_avatar": (f"/uploads/{row['profile_picture']}" if row["profile_picture"] else None),
+            }
+        }), 201
 
     @app.post("/api/bills/reset")
     def reset_bills():

@@ -119,6 +119,9 @@ export default function Navbar({ isAuthenticated = false, onLogout }) {
               <a href="/contact" className='text-xl text-gray-700'>
                   Contact
               </a>
+              <a href="/forum" className='text-xl text-gray-700'>
+                  Forums
+              </a>
               {!isAuthenticated ? (
                 <>
                   <a href="/login" className='text-xl text-white bg-gold rounded-lg px-2 py-1 border-8 border-t-yellow-300 border-l-yellow-300 border-r-yellow-700 border-b-yellow-700 shadow-xl hover:shadow-lg active:shadow-inner transition-all duration-150 font-semibold'>

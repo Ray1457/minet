@@ -10,8 +10,9 @@ import Scammer from './pages/Scammer'
 import Healthcare from './pages/Health'
 import MapPage from './pages/Map'
 import Electricity from './pages/Electrcity'
-
-
+import ForumList from './pages/ForumList'
+import ForumDetail from './pages/ForumDetail'
+import ForumCreate from './pages/ForumCreate'
 
 import Navbar from './components/Navbar'
 import { AuthProvider, useAuth } from './context/AuthContext'
@@ -45,6 +46,30 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <Electricity />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/forum"
+            element={
+              <ProtectedRoute>
+                <ForumList />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/forum/new"
+            element={
+              <ProtectedRoute>
+                <ForumCreate />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/forum/:id"
+            element={
+              <ProtectedRoute>
+                <ForumDetail />
               </ProtectedRoute>
             }
           />
