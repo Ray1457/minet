@@ -13,6 +13,7 @@ import Electricity from './pages/Electrcity'
 import ForumList from './pages/ForumList'
 import ForumDetail from './pages/ForumDetail'
 import ForumCreate from './pages/ForumCreate'
+import Marketplace from './pages/Marketplace'
 
 import Navbar from './components/Navbar'
 import { AuthProvider, useAuth } from './context/AuthContext'
@@ -28,6 +29,7 @@ export default function App() {
           <Route path="/login" element={<Login />} />   
           <Route path="/register" element={<Register />} /> 
           <Route path="/price" element={<Price />} />
+          <Route path="/marketplace" element={<Marketplace />} />
           <Route
             path="/dashboard"
             element={
