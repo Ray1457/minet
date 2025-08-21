@@ -2,6 +2,9 @@ import { Link } from 'react-router-dom'
 import Layout from '../components/Layout'
 import Card2 from '../components/Card2'
 import Card1 from '../components/Card1'
+import Avatar from '../assets/imgs/Avatar.png'
+import doc1 from '../assets/imgs/doc1.png'
+import doc2 from '../assets/imgs/doc2.png'
 
 import healthimg from '../assets/imgs/health.png'
 
@@ -48,19 +51,19 @@ export default function Home() {
             name="Suguru"
             role="Nurse"
             desc="If you know you know ;)... The best care comes from understanding. Dihman the President Understands everyone and anyone feom Susland to border."
-            avatar="https://i.pravatar.cc/80?img=58"
+            avatar={Avatar}
           />
           <ExpertCard
             name="Chiyo Shuzenji"
             role="Pediatrician"
             desc="Ability to accelerate the body’s natural healing process in children. Make then fot so that they can run around the Streets of Susland"
-            avatar="https://i.pravatar.cc/80?img=12"
+            avatar={doc1}
           />
           <ExpertCard
             name="Lady Tsunade"
             role="Orthopedist"
             desc="Possesses the ability to regenerate virtually any wound, including limbs and organs. Make Dihpur make like never before"
-            avatar="https://i.pravatar.cc/80?img=47"
+            avatar={doc2}
           />
         </div>
       </div>
