@@ -30,13 +30,6 @@ export default function ForumList() {
 
   useEffect(() => { fetchForums("") }, [])
 
-  const fmtIST = (d) => {
-    try {
-      return new Date(d).toLocaleString('en-IN')
-    } catch {
-      return String(d)
-    }
-  }
 
   return (
     <Layout className="min-h-screen pb-20">
@@ -75,7 +68,7 @@ export default function ForumList() {
                     loading="lazy"
                   />
                 )}
-                <span>{f.author} • {fmtIST(f.created_at)}</span>
+                <span>{f.author} • {f.created_at}</span>
               </div>
               <p className="mt-2 line-clamp-2">{f.body}</p>
             </li>

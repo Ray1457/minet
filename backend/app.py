@@ -10,7 +10,7 @@ from werkzeug.utils import secure_filename
 import uuid
 from dotenv import load_dotenv
 import random
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 import stripe
 
 # Load local .env in development (no-op in production if not present)
@@ -45,6 +45,40 @@ def create_app():
         conn = sqlite3.connect(db_path)
         conn.row_factory = sqlite3.Row
         return conn
+
+    # Helper: convert a DB timestamp (UTC) to IST ISO8601 string
+    def to_ist_iso(value):
+        if value is None:
+            return None
+        # If it's already a datetime, assume UTC-naive or UTC-aware
+        if isinstance(value, datetime):
+            dt_utc = value if value.tzinfo else value.replace(tzinfo=timezone.utc)
+        else:
+            s = str(value)
+            # Try common SQLite formats
+            fmt_variants = [
+                "%Y-%m-%d %H:%M:%S",
+                "%Y-%m-%d %H:%M:%S.%f",
+                "%Y-%m-%dT%H:%M:%S",
+                "%Y-%m-%dT%H:%M:%S.%f",
+            ]
+            dt_utc = None
+            for fmt in fmt_variants:
+                try:
+                    dt_utc = datetime.strptime(s, fmt).replace(tzinfo=timezone.utc)
+                    break
+                except ValueError:
+                    continue
+            if dt_utc is None:
+                # As a last resort, try parsing as ISO format
+                try:
+                    parsed = datetime.fromisoformat(s)
+                    dt_utc = parsed if parsed.tzinfo else parsed.replace(tzinfo=timezone.utc)
+                except Exception:
+                    # Return the original string if parsing fails
+                    return s
+        ist = dt_utc.astimezone(timezone(timedelta(hours=5, minutes=30)))
+        return ist.isoformat()
 
     # Initialize DB with a users table if needed and apply simple migrations
     with closing(get_db_connection()) as conn:
@@ -246,8 +280,8 @@ def create_app():
                 "currency": r["currency"],
                 "status": r["status"],
                 "stripe_session_id": r["stripe_session_id"],
-                "paid_at": r["paid_at"],
-                "created_at": r["created_at"],
+                "paid_at": to_ist_iso(r["paid_at"]),
+                "created_at": to_ist_iso(r["created_at"]),
             }
             for r in rows
         ]
@@ -342,7 +376,7 @@ def create_app():
                 "id": r["id"],
                 "title": r["title"],
                 "body": r["body"],
-                "created_at": r["created_at"],
+                "created_at": to_ist_iso(r["created_at"]),
                 "user_id": r["user_id"],
                 "author": r["author_name"] or r["author_email"],
                 "author_avatar": (f"/uploads/{r['author_pic']}" if r["author_pic"] else None),
@@ -375,7 +409,7 @@ def create_app():
                 "id": row["id"],
                 "title": row["title"],
                 "body": row["body"],
-                "created_at": row["created_at"],
+                "created_at": to_ist_iso(row["created_at"]),
                 "user_id": row["user_id"],
                 "author": row["name"] or row["email"],
                 "author_avatar": (f"/uploads/{row['profile_picture']}" if row["profile_picture"] else None),
@@ -399,7 +433,7 @@ def create_app():
             {
                 "id": r["id"],
                 "content": r["content"],
-                "created_at": r["created_at"],
+                "created_at": to_ist_iso(r["created_at"]),
                 "user_id": r["user_id"],
                 "author": r["name"] or r["email"],
                 "author_avatar": (f"/uploads/{r['profile_picture']}" if r["profile_picture"] else None),
@@ -410,7 +444,7 @@ def create_app():
             "id": fr["id"],
             "title": fr["title"],
             "body": fr["body"],
-            "created_at": fr["created_at"],
+            "created_at": to_ist_iso(fr["created_at"]),
             "user_id": fr["user_id"],
             "author": fr["name"] or fr["email"],
             "author_avatar": (f"/uploads/{fr['profile_picture']}" if fr["profile_picture"] else None),
@@ -442,7 +476,7 @@ def create_app():
             "comment": {
                 "id": row["id"],
                 "content": row["content"],
-                "created_at": row["created_at"],
+                "created_at": to_ist_iso(row["created_at"]),
                 "user_id": row["user_id"],
                 "author": row["name"] or row["email"],
                 "author_avatar": (f"/uploads/{row['profile_picture']}" if row["profile_picture"] else None),

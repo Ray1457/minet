@@ -12,13 +12,6 @@ export default function ForumDetail() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
   const [content, setContent] = useState("")
-  const fmtIST = (d) => {
-    try {
-      return new Date(d).toLocaleString('en-IN')
-    } catch {
-      return String(d)
-    }
-  }
 
   const fetchForum = async () => {
     setLoading(true)
@@ -74,7 +67,7 @@ export default function ForumDetail() {
         loading="lazy"
       />
     )}
-    <span>{forum.author} • {fmtIST(forum.created_at)}</span>
+    <span>{forum.author} • {forum.created_at}</span>
   </div>
         <div className="border-2 border-black rounded p-4 bg-white mb-6 whitespace-pre-wrap">{forum.body}</div>
 
@@ -91,7 +84,7 @@ export default function ForumDetail() {
                     loading="lazy"
                   />
                 )}
-                <span>{c.author} • {fmtIST(c.created_at)}</span>
+                <span>{c.author} • {c.created_at}</span>
               </div>
               <p className="whitespace-pre-wrap">{c.content}</p>
             </li>
