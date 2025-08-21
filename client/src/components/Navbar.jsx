@@ -106,6 +106,7 @@ export default function Navbar({ isAuthenticated = false, onLogout }) {
                 >
           <a href="/electricity" className="block px-3 py-2 text-gray-800 hover:bg-gray-100" role="menuitem">Electricity</a>
           <a href="/healthcare" className="block px-3 py-2 text-gray-800 hover:bg-gray-100" role="menuitem">Healthcare</a>
+          <a href="/marketplace" className="block px-3 py-2 text-gray-800 hover:bg-gray-100" role="menuitem">Marketplace</a>
                 </div>
               </div>
               <a href="/scam-alert" className='text-xl text-gray-700 bg-red-500 rounded-md px-2 py-1'>
