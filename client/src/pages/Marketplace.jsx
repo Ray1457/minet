@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import Layout from '../components/Layout';
-import './Marketplace.css';
 
 export default function Marketplace() {
   const navigate = useNavigate();
@@ -9,17 +8,17 @@ export default function Marketplace() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  // UI filters to mirror the design exactly
+  // UI filters
   const [keywordInput, setKeywordInput] = useState('');
-  // Start with no active keyword chips so initial view isn't over-filtered
-  const [keywordChips, setKeywordChips] = useState([]);
-  const [priceMax, setPriceMax] = useState(0); // will be set to max product price when data loads
-  const [selectedColors, setSelectedColors] = useState([]);
-  const [selectedSections, setSelectedSections] = useState([]);
-  const [sortBy, setSortBy] = useState('new'); // 'new' | 'price-asc' | 'price-desc' | 'rating'
+  const [keywordChips, setKeywordChips] = useState(['Spring', 'Smart', 'Modern']);
+  const [priceMax, setPriceMax] = useState(100);
+  const [selectedSections, setSelectedSections] = useState(['Games', 'Clothes', 'Fruits and Vegetables']);
+  const [sortBy, setSortBy] = useState('new');
+
+  const API_BASE = (import.meta?.env?.VITE_API_URL || 'http://127.0.0.1:5000').replace(/\/$/, '');
 
   useEffect(() => {
-    fetch('/api/marketplace/products')
+    fetch(`${API_BASE}/api/marketplace/products`)
       .then(res => res.json())
       .then(data => {
         setProducts(data.products || []);
@@ -29,7 +28,7 @@ export default function Marketplace() {
         setError('Failed to load products');
         setLoading(false);
       });
-  }, []);
+  }, [API_BASE]);
 
   const toggleFromArray = (arr, setArr, value) => {
     setArr(prev => (prev.includes(value) ? prev.filter(v => v !== value) : [...prev, value]));
@@ -47,197 +46,216 @@ export default function Marketplace() {
   const filteredProducts = useMemo(() => {
     const matchesKeywords = (p) =>
       keywordChips.length === 0 || keywordChips.some(k => p.name?.toLowerCase().includes(k.toLowerCase()) || p.description?.toLowerCase().includes(k.toLowerCase()));
-    const matchesColor = (p) => selectedColors.length === 0 || (p.color && selectedColors.includes(p.color));
     const matchesSection = (p) => selectedSections.length === 0 || (p.category && selectedSections.includes(p.category));
-    // Price filter: slider range is 0..maxProductPrice
     const matchesPrice = (p) => {
       const price = Number(p.price);
       if (!Number.isFinite(price)) return true;
       return price <= priceMax;
     };
 
-    let list = (products || []).filter(p => matchesKeywords(p) && matchesColor(p) && matchesSection(p) && matchesPrice(p));
+    let list = (products || []).filter(p =>  matchesSection(p) && matchesPrice(p));
 
-    // sorting
     if (sortBy === 'price-asc') list.sort((a, b) => (Number(a.price) || 0) - (Number(b.price) || 0));
     else if (sortBy === 'price-desc') list.sort((a, b) => (Number(b.price) || 0) - (Number(a.price) || 0));
     else if (sortBy === 'rating') list.sort((a, b) => (Number(b.rating) || 0) - (Number(a.rating) || 0));
     else if (sortBy === 'new') list.sort((a, b) => (Number(b.id) || 0) - (Number(a.id) || 0));
 
     return list;
-  }, [products, keywordChips, selectedColors, selectedSections, priceMax, sortBy]);
+  }, [products, keywordChips, selectedSections, priceMax, sortBy]);
 
-  // Compute max product price dynamically
   const maxProductPrice = useMemo(() => {
     return (products || []).reduce((max, p) => {
       const v = Number(p.price);
       return Number.isFinite(v) && v > max ? v : max;
-    }, 0);
+    }, 100);
   }, [products]);
 
-  // Initialize or clamp the slider value to the available max when products load
   useEffect(() => {
     if (maxProductPrice > 0 && (priceMax === 0 || priceMax > maxProductPrice)) {
       setPriceMax(maxProductPrice);
     }
-  }, [maxProductPrice]);
+  }, [maxProductPrice, priceMax]);
 
   return (
     <Layout>
-      <div className="marketpage">
-        <div className="main-container">
-          {/* Sidebar */}
-          <aside className="sidebar">
-            <div className="filter-card">
-              {/* Keywords */}
-              <section className="filter-section">
-                <h3 className="filter-title">Keywords</h3>
-                <div className="keywords-container">
-                  {keywordChips.map((k) => (
-                    <span key={k} className="keyword-tag">
-                      {k}
-                      <button aria-label={`remove ${k}`} className="keyword-remove" onClick={() => removeKeywordChip(k)}>×</button>
-                    </span>
-                  ))}
-                </div>
-                <div className="search-bar-container" style={{ marginTop: 8 }}>
-                  <div className="search-input-container">
-                    <svg className="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                    <input className="search-input" placeholder="Add keyword" value={keywordInput} onChange={(e)=>setKeywordInput(e.target.value)} onKeyDown={(e)=> e.key==='Enter' && addKeywordChip()} />
-                  </div>
-                </div>
-              </section>
-
-              {/* Labels (visual only) */}
-              <section className="filter-section">
-                <div className="label-item">
-                  <input type="checkbox" defaultChecked />
-                  <div className="label-content">
-                    <label>Label</label>
-                    <p className="label-desc">Description</p>
-                  </div>
-                </div>
-              </section>
-
-              {/* Price Range */}
-              <section className="filter-section">
-                <h3 className="filter-title">Price Range</h3>
-                <div className="price-slider-container">
-                  <input
-                    className="price-slider"
-                    type="range"
-                    min={0}
-                    max={maxProductPrice || 0}
-                    step={1}
-                    value={priceMax}
-                    onChange={(e)=> setPriceMax(Number(e.target.value))}
-                    disabled={!maxProductPrice}
-                  />
-                  <div className="price-labels">
-                    <span>0.//</span>
-                    <span>{priceMax}.//</span>
-                  </div>
-                </div>
-              </section>
-
-              {/* Color */}
-              <section className="filter-section">
-                <h3 className="filter-title">Color</h3>
-                <div className="checkbox-group">
-                  {['Black', 'Purple', 'Blue', 'Red', 'Green', 'Yellow'].map(c => (
-                    <label key={c} className="checkbox-item">
-                      <input type="checkbox" checked={selectedColors.includes(c)} onChange={() => toggleFromArray(selectedColors, setSelectedColors, c)} />
-                      <span>{c}</span>
-                    </label>
-                  ))}
-                </div>
-              </section>
-
-              {/* Section */}
-              <section className="filter-section">
-                <h3 className="filter-title">Section</h3>
-                <div className="checkbox-group">
-                  {['Games', 'Clothes', 'Fruits and Vegetables', 'Electronics', 'Books'].map(s => (
-                    <label key={s} className="checkbox-item">
-                      <input type="checkbox" checked={selectedSections.includes(s)} onChange={() => toggleFromArray(selectedSections, setSelectedSections, s)} />
-                      <span>{s}</span>
-                    </label>
-                  ))}
-                </div>
-              </section>
-            </div>
-          </aside>
-
-          {/* Main */}
-          <main className="main-content">
-            <section className="search-section">
-              <div className="search-bar-container">
-                <button className="back-btn" aria-label="Back">◀</button>
-                <div className="search-input-container">
-                  <svg className="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                  <input className="search-input" placeholder="Search" value={keywordInput} onChange={(e)=> setKeywordInput(e.target.value)} onKeyDown={(e)=> e.key==='Enter' && addKeywordChip()} />
-                </div>
-                <div className="sort-buttons">
-                  {[
-                    { k: 'new', label: 'New' },
-                    { k: 'price-asc', label: 'Price ascending' },
-                    { k: 'price-desc', label: 'Price descending' },
-                    { k: 'rating', label: 'Rating' },
-                  ].map(opt => (
-                    <button key={opt.k} className={`sort-btn ${sortBy === opt.k ? 'active' : ''}`} onClick={()=> setSortBy(opt.k)}>
-                      {opt.label}
+      <div className="flex h-screen " style={{ fontFamily: 'BlockBlueprint, monospace' }}>
+        {/* Fixed Left Sidebar */}
+        <aside className="w-1/4 flex-shrink-0 flex items-start justify-center h-[75vh] ">
+          <div className="p-6 bg-gold border-2 border-black overflow-y-auto w-3/4 h-full mp-scroll rounded-lg">
+            {/* Keywords Section */}
+            <div className="mb-6">
+              <h3 className="text-lg font-bold mb-4 text-black">Keywords</h3>
+              <div className="flex flex-wrap gap-2 mb-4">
+                {keywordChips.map((k) => (
+                  <span key={k} className="inline-flex items-start bg-theme-orange text-black rounded-md text-sm border border-theme-orange ">
+                    <div className=' w-[calc(100%-4px)] h-[calc(100%-4px)] bg-white rounded-md inline-flex items-center justify-center px-3 py-2'>
+                    {k}
+                    <button 
+                      onClick={() => removeKeywordChip(k)}
+                      className="ml-2 text-black hover:text-red-600 font-bold z-10"
+                    >
+                      ×
                     </button>
-                  ))}
-                </div>
-              </div>
-            </section>
-
-            <section>
-              {loading && <div>Loading products...</div>}
-              {error && <div style={{ color: 'crimson' }}>{error}</div>}
-
-              <div className="product-grid">
-                {filteredProducts.map((product) => (
-                  <article
-                    key={product.id}
-                    className="product-card"
-                    onClick={() => navigate(`/marketplace/${product.id}`)}
-                    role="button"
-                    tabIndex={0}
-                    onKeyDown={(e)=> { if(e.key==='Enter') navigate(`/marketplace/${product.id}`) }}
-                  >
-                    <div className="product-image-container">
-                      {product.image_url ? (
-                        <img
-                          className="product-image"
-                          src={product.image_url}
-                          alt={product.name}
-                          onError={(e) => {
-                            e.currentTarget.onerror = null; // prevent loop
-                            e.currentTarget.src = '/flag.png';
-                          }}
-                        />
-                      ) : (
-                        <div style={{ textAlign: 'center', color: '#666' }}>
-                          <div style={{ fontSize: 48, marginBottom: 12 }}>📦</div>
-                          <div>No Image</div>
-                        </div>
-                      )}
                     </div>
-                    <div className="product-info">
-                      <h4 className="product-name">{product.name}</h4>
-                      <p className="product-price">{Number(product.price) || product.price}.//</p>
-                    </div>
-                  </article>
+                  </span>
                 ))}
               </div>
+              {/* <div className="flex">
+                <input
+                  type="text"
+                  value={keywordInput}
+                  onChange={(e) => setKeywordInput(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && addKeywordChip()}
+                  placeholder="Add keyword"
+                  className="flex-1 px-3 py-2 border-2 border-black rounded-l bg-white"
+                />
+                <button
+                  onClick={addKeywordChip}
+                  className="px-4 py-2 bg-orange-300 border-2 border-l-0 border-black rounded-r hover:bg-orange-400 flex items-center justify-center"
+                >
+                  <ion-icon name="search-outline"></ion-icon>
+                </button>
+              </div> */}
+            </div>
 
-              {filteredProducts.length === 0 && !loading && !error && (
-                <div style={{ textAlign: 'center', color: '#666', marginTop: 24 }}>No products found.</div>
-              )}
-            </section>
-          </main>
-        </div>
+            {/* Labels Section */}
+            <div className="mb-6">
+              {[1, 2, 3].map(i => (
+                <div key={i} className="flex items-start mb-3">
+                  <input type="checkbox" defaultChecked className="mr-3 mt-1" />
+                  <div>
+                    <div className="font-bold text-black">Label</div>
+                    <div className="text-sm text-gray-700">Description</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Price Range */}
+            <div className="mb-6">
+              <h3 className="text-lg font-bold mb-4 text-black">Price Range</h3>
+              <input
+                type="range"
+                min={0}
+                max={maxProductPrice}
+                value={priceMax}
+                onChange={(e) => setPriceMax(Number(e.target.value))}
+                className="w-full mb-2"
+              />
+              <div className="flex justify-between text-sm text-gray-700">
+                <span>0ℳ</span>
+                <span>{priceMax}ℳ</span>
+              </div>
+            </div>
+
+            {/* Section Checkboxes */}
+            <div className="mb-6">
+              <h3 className="text-lg font-bold mb-4 text-black">Section</h3>
+              {['Games', 'Clothes', 'Fruits and Vegetables', 'Electronics', 'Books'].map(s => (
+                <label key={s} className="flex items-center mb-2 text-black">
+                  <input
+                    type="checkbox"
+                    checked={selectedSections.includes(s)}
+                    onChange={() => toggleFromArray(selectedSections, setSelectedSections, s)}
+                    className="mr-3"
+                  />
+                  {s}
+                </label>
+              ))}
+            </div>
+          </div>
+        </aside>
+
+        {/* Main Content Area */}
+        <main className="flex-1 flex flex-col overflow-hidden">
+          {/* Search Bar */}
+          <div className="  p-4 flex-shrink-0">
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex w-1/3">
+                <input
+                  type="text"
+                  value={keywordInput}
+                  onChange={(e) => setKeywordInput(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && addKeywordChip()}
+                  placeholder="Search"
+                  className="flex-1 px-4 py-2 border-2 border-black border-r-0 rounded-l-full bg-orange-200 focus:outline-none focus:ring-0"
+                />
+                <button
+                  onClick={addKeywordChip}
+                  className="px-4 py-2 bg-orange-200 border-2 border-l-0 border-black  rounded-r-full hover:bg-orange-300 flex items-center justify-center"
+                >
+                  <ion-icon name="search-outline"></ion-icon>
+                </button>
+              </div>
+
+              <div className="flex gap-2">
+                {[
+                  { k: 'new', label: 'New' },
+                  { k: 'price-asc', label: 'Price ascending' },
+                  { k: 'price-desc', label: 'Price descending' },
+                ].map(opt => (
+                  <button
+                    key={opt.k}
+                    onClick={() => setSortBy(opt.k)}
+                    className={`px-3 py-2 border-2 border-black rounded text-sm ${
+                      sortBy === opt.k 
+                        ? 'bg-orange-400 text-black' 
+                        : 'bg-orange-200 text-black hover:bg-orange-300'
+                    }`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Product Grid */}
+          <div className="flex-1 overflow-y-auto p-6">
+            {loading && <div className="text-center py-8">Loading products...</div>}
+            {error && <div className="text-center py-8 text-red-600">{error}</div>}
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredProducts.map((product) => (
+                <Link
+                  key={product.id}
+                  to={`/marketplace/${product.id}`}
+                  className="group"
+                >
+                  <div className="bg-white border-2 border-black rounded-lg overflow-hidden hover:shadow-lg transition-shadow cursor-pointer">
+                    <div className="aspect-square bg-gray-100 flex items-center justify-center p-4">
+                      {product.image_url ? (
+                        <img
+                          src={`${API_BASE}/${String(product.image_url).replace(/^\//, '')}`}
+                          alt={product.name}
+                          className="max-w-full max-h-full object-contain"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                            e.currentTarget.nextElementSibling.style.display = 'flex';
+                          }}
+                        />
+                      ) : null}
+                      <div 
+                        className="text-6xl text-gray-400 flex items-center justify-center w-full h-full"
+                        style={{ display: product.image_url ? 'none' : 'flex' }}
+                      >
+                        📦
+                      </div>
+                    </div>
+                    <div className="p-4 bg-orange-100">
+                      <h3 className="font-bold text-black text-lg mb-1">{product.name}</h3>
+                      <p className="text-black font-bold">{product.price}ℳ</p>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+
+            {filteredProducts.length === 0 && !loading && !error && (
+              <div className="text-center py-8 text-gray-600">No products found.</div>
+            )}
+          </div>
+        </main>
       </div>
     </Layout>
   );

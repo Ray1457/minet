@@ -41,6 +41,9 @@ def create_app():
     db_path = data_dir / "app.db"
     uploads_dir = base_dir / "uploads"
     uploads_dir.mkdir(parents=True, exist_ok=True)
+    # Directory for marketplace product images
+    products_dir = data_dir / "products"
+    products_dir.mkdir(parents=True, exist_ok=True)
 
     def get_db_connection():
         conn = sqlite3.connect(db_path)
@@ -106,6 +109,7 @@ def create_app():
         ensure_column("address TEXT", "address")
         ensure_column("phone TEXT", "phone")
         ensure_column("profile_picture TEXT", "profile_picture")
+        ensure_column("citizen_code TEXT", "citizen_code")
         # Products table for marketplace
         conn.execute(
             """
@@ -183,6 +187,7 @@ def create_app():
             age_raw = form.get("age")
             address = form.get("address")
             phone = form.get("phone")
+            citizen_code = (form.get("citizen_code") or None)
             try:
                 age = int(age_raw) if age_raw not in (None, "") else None
             except ValueError:
@@ -203,16 +208,21 @@ def create_app():
             age = data.get("age") if isinstance(data.get("age"), int) else None
             address = data.get("address")
             phone = data.get("phone")
+            citizen_code = data.get("citizen_code") or None
 
-        if not email or not password:
-            return jsonify({"error": "Email and password are required."}), 400
+        if not email:
+            return jsonify({"error": "Email is required."}), 400
 
-        pwd_hash = generate_password_hash(password)
+        # Password is optional now; create placeholder if not provided
+        pwd_hash = generate_password_hash(password) if password else generate_password_hash(uuid.uuid4().hex)
+        # Generate citizen_code if not supplied (simple 12-char code)
+        if not citizen_code:
+            citizen_code = ("CZN" + uuid.uuid4().hex.upper())[:12]
         try:
             with closing(get_db_connection()) as conn:
                 cur = conn.execute(
-                    "INSERT INTO users (email, password_hash, name, age, address, phone, profile_picture) VALUES (?, ?, ?, ?, ?, ?, ?)",
-                    (email, pwd_hash, name, age, address, phone, profile_filename),
+                    "INSERT INTO users (email, password_hash, name, age, address, phone, profile_picture, citizen_code) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                    (email, pwd_hash, name, age, address, phone, profile_filename, citizen_code),
                 )
                 user_id = cur.lastrowid
                 # Seed only May, June, July 2000; May paid, June & July due
@@ -242,6 +252,7 @@ def create_app():
                 "address": address,
                 "phone": phone,
                 "profile_picture_url": picture_url,
+                "citizen_code": citizen_code,
             }
         }), 201
 
@@ -250,18 +261,26 @@ def create_app():
         data = request.get_json(silent=True) or {}
         email = (data.get("email") or "").strip().lower()
         password = data.get("password") or ""
+        citizen_code = data.get("citizen_code") or ""
 
-        if not email or not password:
-            return jsonify({"error": "Email and password are required."}), 400
+        if not email or (not password and not citizen_code):
+            return jsonify({"error": "Email and citizen_code (or password for legacy accounts) are required."}), 400
 
         with closing(get_db_connection()) as conn:
             row = conn.execute(
-                "SELECT id, email, password_hash, name, age, address, phone, profile_picture FROM users WHERE email = ?",
+                "SELECT id, email, password_hash, name, age, address, phone, profile_picture, citizen_code FROM users WHERE email = ?",
                 (email,),
             ).fetchone()
 
-        if not row or not check_password_hash(row["password_hash"], password):
-            return jsonify({"error": "Invalid email or password."}), 401
+        if not row:
+            return jsonify({"error": "Invalid email or credentials."}), 401
+        # Prefer citizen_code auth if provided; fallback to password for legacy users
+        if citizen_code:
+            if (row["citizen_code"] or "") != citizen_code:
+                return jsonify({"error": "Invalid email or credentials."}), 401
+        else:
+            if not check_password_hash(row["password_hash"], password):
+                return jsonify({"error": "Invalid email or credentials."}), 401
 
         # For simplicity we don't issue a JWT here. The frontend can store the user object.
         picture_url = f"/uploads/{row['profile_picture']}" if row["profile_picture"] else None
@@ -274,6 +293,7 @@ def create_app():
                 "address": row["address"],
                 "phone": row["phone"],
                 "profile_picture_url": picture_url,
+                "citizen_code": row.get("citizen_code") if isinstance(row, dict) else row["citizen_code"],
             }
         })
 
@@ -532,6 +552,11 @@ def create_app():
     def get_upload(filename: str):
         # Serve profile pictures
         return send_from_directory(uploads_dir, filename)
+
+    @app.get("/data/products/<path:filename>")
+    def get_product_asset(filename: str):
+        """Serve marketplace product images stored in backend/data/products."""
+        return send_from_directory(products_dir, filename)
 
     return app
 

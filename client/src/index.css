@@ -50,4 +50,23 @@ body { min-height: 100vh; }
 	border-radius: 9999px;
 }
 
+/* Scoped thin scrollbar for Register page only */
+.mp-scroll {
+	/* Firefox */
+	scrollbar-width: thin;           /* makes it thin */
+	scrollbar-color: #fff transparent; /* thumb color, track transparent */
+}
+.mp-scroll::-webkit-scrollbar {
+	width: 2px;   /* vertical */
+	height: 2px;  /* horizontal (if any) */
+}
+.mp-scroll::-webkit-scrollbar-track {
+	background: transparent;
+}
+.mp-scroll::-webkit-scrollbar-thumb {
+	background-color: #fff; /* theme-orange */
+	border-radius: 9999px;
+}
+
+
 
