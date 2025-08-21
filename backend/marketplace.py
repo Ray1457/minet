@@ -42,4 +42,103 @@ def add_product():
         product_id = cur.lastrowid
     return jsonify({'id': product_id}), 201
 
-
+@bp.route('/products/seed', methods=['POST'])
+def seed_products():
+    """Add sample products to the marketplace"""
+    sample_products = [
+        {
+            'name': 'Government Laptop',
+            'price': 45000,
+            'description': 'High-performance laptop for government employees with security features',
+            'image_url': '/uploads/laptop.jpg',
+            'category': 'Electronics',
+            'color': 'Black'
+        },
+        {
+            'name': 'Official Uniform Shirt',
+            'price': 1200,
+            'description': 'Standard government employee uniform shirt in cotton blend',
+            'image_url': '/uploads/shirt.jpg',
+            'category': 'Clothes',
+            'color': 'Blue'
+        },
+        {
+            'name': 'Fresh Apples',
+            'price': 150,
+            'description': 'Organic apples from government farms, 1kg pack',
+            'image_url': '/uploads/apples.jpg',
+            'category': 'Fruits and Vegetables',
+            'color': 'Red'
+        },
+        {
+            'name': 'Civil Service Handbook',
+            'price': 500,
+            'description': 'Complete guide to civil service procedures and regulations',
+            'image_url': '/uploads/handbook.jpg',
+            'category': 'Books',
+            'color': 'Blue'
+        },
+        {
+            'name': 'Government Phone',
+            'price': 25000,
+            'description': 'Secure smartphone for government officials with encrypted communication',
+            'image_url': '/uploads/phone.jpg',
+            'category': 'Electronics',
+            'color': 'Black'
+        },
+        {
+            'name': 'Official Blazer',
+            'price': 3500,
+            'description': 'Formal blazer for government ceremonies and meetings',
+            'image_url': '/uploads/blazer.jpg',
+            'category': 'Clothes',
+            'color': 'Purple'
+        },
+        {
+            'name': 'Organic Rice',
+            'price': 80,
+            'description': 'Premium basmati rice from government agricultural schemes, 1kg',
+            'image_url': '/uploads/rice.jpg',
+            'category': 'Fruits and Vegetables',
+            'color': 'Yellow'
+        },
+        {
+            'name': 'Constitution of UPM',
+            'price': 300,
+            'description': 'Official constitution book of United Pingdom of Minet',
+            'image_url': '/uploads/constitution.jpg',
+            'category': 'Books',
+            'color': 'Green'
+        },
+        {
+            'name': 'LED Monitor',
+            'price': 15000,
+            'description': '24-inch LED monitor for government offices',
+            'image_url': '/uploads/monitor.jpg',
+            'category': 'Electronics',
+            'color': 'Black'
+        },
+        {
+            'name': 'Safety Vest',
+            'price': 800,
+            'description': 'High-visibility safety vest for government workers',
+            'image_url': '/uploads/vest.jpg',
+            'category': 'Clothes',
+            'color': 'Yellow'
+        }
+    ]
+    
+    with closing(get_db_connection()) as conn:
+        # Clear existing products first
+        conn.execute('DELETE FROM products')
+        
+        # Insert sample products
+        for product in sample_products:
+            conn.execute(
+                'INSERT INTO products (name, price, description, image_url, category, color) VALUES (?, ?, ?, ?, ?, ?)',
+                (product['name'], product['price'], product['description'], 
+                 product['image_url'], product['category'], product['color'])
+            )
+        conn.commit()
+    
+    return jsonify({'message': f'Successfully added {len(sample_products)} sample products'}), 201

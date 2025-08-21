@@ -1,16 +1,20 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Layout from '../components/Layout';
+import './Marketplace.css';
 
 export default function Marketplace() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [filters, setFilters] = useState({
-    keywords: '',
-    priceRange: '',
-    color: '',
-    section: ''
-  });
+
+  // UI filters to mirror the design exactly
+  const [keywordInput, setKeywordInput] = useState('');
+  // Start with no active keyword chips so initial view isn't over-filtered
+  const [keywordChips, setKeywordChips] = useState([]);
+  const [priceMax, setPriceMax] = useState(0); // will be set to max product price when data loads
+  const [selectedColors, setSelectedColors] = useState([]);
+  const [selectedSections, setSelectedSections] = useState([]);
+  const [sortBy, setSortBy] = useState('new'); // 'new' | 'price-asc' | 'price-desc' | 'rating'
 
   useEffect(() => {
     fetch('/api/marketplace/products')
@@ -19,160 +23,211 @@ export default function Marketplace() {
         setProducts(data.products || []);
         setLoading(false);
       })
-      .catch(e => {
+      .catch(() => {
         setError('Failed to load products');
         setLoading(false);
       });
   }, []);
 
-  const filteredProducts = products.filter(product => {
-    return (
-      (!filters.keywords || product.name.toLowerCase().includes(filters.keywords.toLowerCase())) &&
-      (!filters.color || product.color === filters.color) &&
-      (!filters.section || product.category === filters.section)
-    );
-  });
+  const toggleFromArray = (arr, setArr, value) => {
+    setArr(prev => (prev.includes(value) ? prev.filter(v => v !== value) : [...prev, value]));
+  };
+
+  const addKeywordChip = () => {
+    const v = keywordInput.trim();
+    if (!v) return;
+    if (!keywordChips.includes(v)) setKeywordChips([...keywordChips, v]);
+    setKeywordInput('');
+  };
+
+  const removeKeywordChip = (v) => setKeywordChips(keywordChips.filter(k => k !== v));
+
+  const filteredProducts = useMemo(() => {
+    const matchesKeywords = (p) =>
+      keywordChips.length === 0 || keywordChips.some(k => p.name?.toLowerCase().includes(k.toLowerCase()) || p.description?.toLowerCase().includes(k.toLowerCase()));
+    const matchesColor = (p) => selectedColors.length === 0 || (p.color && selectedColors.includes(p.color));
+    const matchesSection = (p) => selectedSections.length === 0 || (p.category && selectedSections.includes(p.category));
+    // Price filter: slider range is 0..maxProductPrice
+    const matchesPrice = (p) => {
+      const price = Number(p.price);
+      if (!Number.isFinite(price)) return true;
+      return price <= priceMax;
+    };
+
+    let list = (products || []).filter(p => matchesKeywords(p) && matchesColor(p) && matchesSection(p) && matchesPrice(p));
+
+    // sorting
+    if (sortBy === 'price-asc') list.sort((a, b) => (Number(a.price) || 0) - (Number(b.price) || 0));
+    else if (sortBy === 'price-desc') list.sort((a, b) => (Number(b.price) || 0) - (Number(a.price) || 0));
+    else if (sortBy === 'rating') list.sort((a, b) => (Number(b.rating) || 0) - (Number(a.rating) || 0));
+    else if (sortBy === 'new') list.sort((a, b) => (Number(b.id) || 0) - (Number(a.id) || 0));
+
+    return list;
+  }, [products, keywordChips, selectedColors, selectedSections, priceMax, sortBy]);
+
+  // Compute max product price dynamically
+  const maxProductPrice = useMemo(() => {
+    return (products || []).reduce((max, p) => {
+      const v = Number(p.price);
+      return Number.isFinite(v) && v > max ? v : max;
+    }, 0);
+  }, [products]);
+
+  // Initialize or clamp the slider value to the available max when products load
+  useEffect(() => {
+    if (maxProductPrice > 0 && (priceMax === 0 || priceMax > maxProductPrice)) {
+      setPriceMax(maxProductPrice);
+    }
+  }, [maxProductPrice]);
 
   return (
     <Layout>
-      <div className="flex min-h-screen bg-[#f5e6d3] font-blockblueprint">
-        {/* Sidebar Filters */}
-        <div className="w-64 bg-[#e6d7c3] border-r-2 border-black p-4">
-          <h2 className="text-xl font-bold mb-4 text-center bg-[#d4af37] text-white py-2 border-2 border-black">
-            United Pingdom of Minet
-          </h2>
-          
-          {/* Navigation Tabs */}
-          <div className="flex mb-4">
-            <button className="px-3 py-1 bg-[#ff6b35] text-white border-2 border-black text-sm font-bold">
-              Topics
-            </button>
-            <button className="px-3 py-1 bg-gray-300 border-2 border-black text-sm">
-              Services
-            </button>
-            <button className="px-3 py-1 bg-[#ff6b35] text-white border-2 border-black text-sm font-bold">
-              Scam Alert
-            </button>
-          </div>
-
-          {/* Keywords Filter */}
-          <div className="mb-4">
-            <h3 className="font-bold mb-2 bg-[#d4af37] text-white px-2 py-1 border border-black">Keywords</h3>
-            <input
-              type="text"
-              value={filters.keywords}
-              onChange={(e) => setFilters({...filters, keywords: e.target.value})}
-              className="w-full border-2 border-black px-2 py-1 text-sm"
-              placeholder="Search products..."
-            />
-          </div>
-
-          {/* Price Range */}
-          <div className="mb-4">
-            <h3 className="font-bold mb-2 bg-[#d4af37] text-white px-2 py-1 border border-black">Price Range</h3>
-            <select 
-              value={filters.priceRange}
-              onChange={(e) => setFilters({...filters, priceRange: e.target.value})}
-              className="w-full border-2 border-black px-2 py-1 text-sm"
-            >
-              <option value="">All Prices</option>
-              <option value="under-100">Under $100</option>
-              <option value="100-500">$100 - $500</option>
-              <option value="over-500">Over $500</option>
-            </select>
-          </div>
-
-          {/* Color Filter */}
-          <div className="mb-4">
-            <h3 className="font-bold mb-2 bg-[#d4af37] text-white px-2 py-1 border border-black">Color</h3>
-            <div className="space-y-1">
-              {['Red', 'Blue', 'Purple', 'Green', 'Yellow'].map(color => (
-                <label key={color} className="flex items-center text-sm">
-                  <input
-                    type="checkbox"
-                    checked={filters.color === color}
-                    onChange={(e) => setFilters({...filters, color: e.target.checked ? color : ''})}
-                    className="mr-2"
-                  />
-                  {color}
-                </label>
-              ))}
-            </div>
-          </div>
-
-          {/* Section Filter */}
-          <div className="mb-4">
-            <h3 className="font-bold mb-2 bg-[#d4af37] text-white px-2 py-1 border border-black">Section</h3>
-            <div className="space-y-1">
-              {['Electronics', 'Clothes', 'Fruits and Vegetables', 'Books'].map(section => (
-                <label key={section} className="flex items-center text-sm">
-                  <input
-                    type="checkbox"
-                    checked={filters.section === section}
-                    onChange={(e) => setFilters({...filters, section: e.target.checked ? section : ''})}
-                    className="mr-2"
-                  />
-                  {section}
-                </label>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Main Content */}
-        <div className="flex-1 p-6">
-          {/* Search Bar */}
-          <div className="mb-6 flex justify-center">
-            <div className="flex items-center border-2 border-black rounded-full bg-white px-4 py-2 w-96">
-              <input
-                type="text"
-                placeholder="Search"
-                value={filters.keywords}
-                onChange={(e) => setFilters({...filters, keywords: e.target.value})}
-                className="flex-1 outline-none"
-              />
-              <button className="ml-2">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-              </button>
-            </div>
-          </div>
-
-          {/* Products Grid */}
-          {loading && <div className="text-center">Loading products...</div>}
-          {error && <div className="text-red-600 text-center">{error}</div>}
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredProducts.map(product => (
-              <div key={product.id} className="border-2 border-black rounded-lg bg-[#ff8c42] overflow-hidden shadow-lg">
-                <div className="h-48 bg-gray-200 flex items-center justify-center">
-                  {product.image_url ? (
-                    <img src={product.image_url} alt={product.name} className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="text-gray-500 text-center">
-                      <div className="text-4xl mb-2">📦</div>
-                      <div>No Image</div>
-                    </div>
-                  )}
+      <div className="marketpage">
+        <div className="main-container">
+          {/* Sidebar */}
+          <aside className="sidebar">
+            <div className="filter-card">
+              {/* Keywords */}
+              <section className="filter-section">
+                <h3 className="filter-title">Keywords</h3>
+                <div className="keywords-container">
+                  {keywordChips.map((k) => (
+                    <span key={k} className="keyword-tag">
+                      {k}
+                      <button aria-label={`remove ${k}`} className="keyword-remove" onClick={() => removeKeywordChip(k)}>×</button>
+                    </span>
+                  ))}
                 </div>
-                <div className="p-4 text-center">
-                  <h3 className="font-bold text-lg mb-2">{product.name}</h3>
-                  <p className="text-sm mb-2">{product.description}</p>
-                  <div className="font-bold text-xl">₹{product.price}</div>
-                  <div className="text-xs text-gray-600 mt-1">
-                    {product.category} • {product.color}
+                <div className="search-bar-container" style={{ marginTop: 8 }}>
+                  <div className="search-input-container">
+                    <svg className="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input className="search-input" placeholder="Add keyword" value={keywordInput} onChange={(e)=>setKeywordInput(e.target.value)} onKeyDown={(e)=> e.key==='Enter' && addKeywordChip()} />
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              </section>
 
-          {filteredProducts.length === 0 && !loading && !error && (
-            <div className="text-center text-gray-600 mt-8">
-              No products found matching your filters.
+              {/* Labels (visual only) */}
+              <section className="filter-section">
+                <div className="label-item">
+                  <input type="checkbox" defaultChecked />
+                  <div className="label-content">
+                    <label>Label</label>
+                    <p className="label-desc">Description</p>
+                  </div>
+                </div>
+              </section>
+
+              {/* Price Range */}
+              <section className="filter-section">
+                <h3 className="filter-title">Price Range</h3>
+                <div className="price-slider-container">
+                  <input
+                    className="price-slider"
+                    type="range"
+                    min={0}
+                    max={maxProductPrice || 0}
+                    step={1}
+                    value={priceMax}
+                    onChange={(e)=> setPriceMax(Number(e.target.value))}
+                    disabled={!maxProductPrice}
+                  />
+                  <div className="price-labels">
+                    <span>0.//</span>
+                    <span>{priceMax}.//</span>
+                  </div>
+                </div>
+              </section>
+
+              {/* Color */}
+              <section className="filter-section">
+                <h3 className="filter-title">Color</h3>
+                <div className="checkbox-group">
+                  {['Black', 'Purple', 'Blue', 'Red', 'Green', 'Yellow'].map(c => (
+                    <label key={c} className="checkbox-item">
+                      <input type="checkbox" checked={selectedColors.includes(c)} onChange={() => toggleFromArray(selectedColors, setSelectedColors, c)} />
+                      <span>{c}</span>
+                    </label>
+                  ))}
+                </div>
+              </section>
+
+              {/* Section */}
+              <section className="filter-section">
+                <h3 className="filter-title">Section</h3>
+                <div className="checkbox-group">
+                  {['Games', 'Clothes', 'Fruits and Vegetables', 'Electronics', 'Books'].map(s => (
+                    <label key={s} className="checkbox-item">
+                      <input type="checkbox" checked={selectedSections.includes(s)} onChange={() => toggleFromArray(selectedSections, setSelectedSections, s)} />
+                      <span>{s}</span>
+                    </label>
+                  ))}
+                </div>
+              </section>
             </div>
-          )}
+          </aside>
+
+          {/* Main */}
+          <main className="main-content">
+            <section className="search-section">
+              <div className="search-bar-container">
+                <button className="back-btn" aria-label="Back">◀</button>
+                <div className="search-input-container">
+                  <svg className="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                  <input className="search-input" placeholder="Search" value={keywordInput} onChange={(e)=> setKeywordInput(e.target.value)} onKeyDown={(e)=> e.key==='Enter' && addKeywordChip()} />
+                </div>
+                <div className="sort-buttons">
+                  {[
+                    { k: 'new', label: 'New' },
+                    { k: 'price-asc', label: 'Price ascending' },
+                    { k: 'price-desc', label: 'Price descending' },
+                    { k: 'rating', label: 'Rating' },
+                  ].map(opt => (
+                    <button key={opt.k} className={`sort-btn ${sortBy === opt.k ? 'active' : ''}`} onClick={()=> setSortBy(opt.k)}>
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </section>
+
+            <section>
+              {loading && <div>Loading products...</div>}
+              {error && <div style={{ color: 'crimson' }}>{error}</div>}
+
+              <div className="product-grid">
+                {filteredProducts.map((product) => (
+                  <article key={product.id} className="product-card">
+                    <div className="product-image-container">
+                      {product.image_url ? (
+                        <img
+                          className="product-image"
+                          src={product.image_url}
+                          alt={product.name}
+                          onError={(e) => {
+                            e.currentTarget.onerror = null; // prevent loop
+                            e.currentTarget.src = '/flag.png';
+                          }}
+                        />
+                      ) : (
+                        <div style={{ textAlign: 'center', color: '#666' }}>
+                          <div style={{ fontSize: 48, marginBottom: 12 }}>📦</div>
+                          <div>No Image</div>
+                        </div>
+                      )}
+                    </div>
+                    <div className="product-info">
+                      <h4 className="product-name">{product.name}</h4>
+                      <p className="product-price">{Number(product.price) || product.price}.//</p>
+                    </div>
+                  </article>
+                ))}
+              </div>
+
+              {filteredProducts.length === 0 && !loading && !error && (
+                <div style={{ textAlign: 'center', color: '#666', marginTop: 24 }}>No products found.</div>
+              )}
+            </section>
+          </main>
         </div>
       </div>
     </Layout>

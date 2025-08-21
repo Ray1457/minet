@@ -138,10 +138,6 @@ def create_app():
             )
             """
         )
-        conn.commit()
-    # Register marketplace blueprint
-    app.register_blueprint(marketplace_bp)
-
         # Forums table
         conn.execute(
             """
@@ -170,6 +166,9 @@ def create_app():
             """
         )
         conn.commit()
+    
+    # Register marketplace blueprint
+    app.register_blueprint(marketplace_bp)
 
 
     @app.post("/api/register")
