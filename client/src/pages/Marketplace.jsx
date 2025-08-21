@@ -78,7 +78,7 @@ export default function Marketplace() {
 
   return (
     <Layout>
-      <div className="flex h-screen " style={{ fontFamily: 'BlockBlueprint, monospace' }}>
+      <div className="flex overflow-y-auto mt-12" style={{ fontFamily: 'BlockBlueprint, monospace' }}>
         {/* Fixed Left Sidebar */}
         <aside className="w-1/4 flex-shrink-0 flex items-start justify-center h-[75vh] ">
           <div className="p-6 bg-gold border-2 border-black overflow-y-auto w-3/4 h-full mp-scroll rounded-lg">
@@ -211,7 +211,7 @@ export default function Marketplace() {
           </div>
 
           {/* Product Grid */}
-          <div className="flex-1 overflow-y-auto p-6">
+          <div className="flex-1 p-6">
             {loading && <div className="text-center py-8">Loading products...</div>}
             {error && <div className="text-center py-8 text-red-600">{error}</div>}
             
