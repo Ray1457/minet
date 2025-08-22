@@ -6,6 +6,47 @@
 :root { color-scheme: light dark; }
 body { min-height: 100vh; }
 
+/* Custom cursors */
+/* Default cursor across the app */
+html, body, #root, body * {
+	/* Hotspot at 0 0 helps some browsers position correctly */
+	cursor: url('./assets/imgs/cursor.png') 0 0, auto !important;
+}
+
+/* Cursor for interactive elements (hover/click targets) */
+/* Cursor for interactive elements (hover/click targets) */
+a,
+button,
+[role="button"],
+input[type="button"],
+input[type="submit"],
+input[type="reset"],
+label,
+select,
+summary,
+.btn,
+.cursor-pointer,
+[onclick] {
+	cursor: url('./assets/imgs/cursor2.png') 0 0, pointer !important;
+}
+
+/* While mouse is pressed anywhere */
+*:active {
+	cursor: url('./assets/imgs/cursor2.png') 0 0, auto !important;
+}
+
+/* Preserve I-beam for text inputs/areas and contenteditable */
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="search"],
+input[type="url"],
+input[type="tel"],
+textarea,
+[contenteditable="true"] {
+	cursor: text !important;
+}
+
 /* BlockBlueprint font - place font files in src/assets/fonts/ */
 @font-face {
 	font-family: 'BlockBlueprint';

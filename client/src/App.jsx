@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Link, Navigate, useLocation } from 'react-router-dom'
+import { useEffect, useState } from 'react'
 import Home from './pages/Home'
 import Login from './pages/Login'
 import Register from './pages/Register'
@@ -24,6 +25,7 @@ export default function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
+  <FirstVisitModal />
         <AuthNavbarWrapper />
         <Routes>
           <Route path="/" element={<Home />} />        
@@ -95,4 +97,47 @@ function ProtectedRoute({ children }) {
     return <Navigate to="/login" replace state={{ from: location }} />
   }
   return children
+}
+
+function FirstVisitModal() {
+  const [open, setOpen] = useState(false)
+
+  useEffect(() => {
+    const hasSeen = sessionStorage.getItem('firstVisitModalShown')
+    if (!hasSeen) {
+      setOpen(true)
+      sessionStorage.setItem('firstVisitModalShown', 'true')
+    }
+  }, [])
+
+  if (!open) return null
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+      <div className="relative w-[90%] max-w-xl rounded-lg bg-white p-6 shadow-xl text-gray-900">
+        <button
+          onClick={() => setOpen(false)}
+          aria-label="Close"
+          className="absolute right-3 top-3 rounded p-1 text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+        >
+          {/* Multiplication sign for close */}
+          <span className="block text-xl leading-none">
+            <ion-icon name="close-circle-outline"></ion-icon>
+          </span>
+        </button>
+        {/* <h2 className="mb-2 text-xl font-semibold">Welcome to MINET</h2>
+        <p className="mb-4 text-gray-600">
+          Here’s a quick tip: use the navigation bar to explore prices, marketplace, forums, and more.
+        </p> */}
+        <div className='h-72 text-gray-800 flex items-center justify-center gap-5 text-5xl'>
+            <span className='block font-bold text-green-700'>XINO</span>
+            <span className='text-red-600 '>
+              <ion-icon name="heart"></ion-icon>
+            </span>
+            
+            <span className='block font-bold text-blue-800'>MINET</span>
+        </div>
+      </div>
+    </div>
+  )
 }
